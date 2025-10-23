@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { Activity, Download } from 'lucide-react';
 
 const Settings: React.FC = () => {
-  const { user } = useApp();
+  const { user, addToast } = useApp();
   const [activeTab, setActiveTab] = useState('profile');
   
   const tabs = [
@@ -13,14 +13,18 @@ const Settings: React.FC = () => {
     { id: 'billing', label: 'Billing' }
   ];
   
+  const handleSaveChanges = () => {
+    addToast('Profile updated successfully!', 'success');
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fadeIn">
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Settings</h2>
         <p className="text-gray-600 mt-1">Manage your account and preferences</p>
       </div>
       
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border-2 border-gray-200 overflow-hidden shadow-xl">
         <div className="border-b border-gray-200 flex">
           {tabs.map(tab => (
             <button
@@ -91,7 +95,9 @@ const Settings: React.FC = () => {
                 </div>
               </div>
               
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              <button 
+                onClick={handleSaveChanges}
+                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-2 rounded-lg transition-all font-medium shadow-md hover:shadow-lg">
                 Save Changes
               </button>
             </div>

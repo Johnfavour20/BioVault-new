@@ -1,5 +1,4 @@
-
-import type { User, Document, AccessRequest, ActiveAccess, AuditLog } from './types';
+import type { User, Document, AccessRequest, ActiveAccess, AuditLog, Notification } from './types';
 
 export const mockUser: User = {
   id: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
@@ -109,4 +108,31 @@ export const mockAuditLog: AuditLog[] = [
     timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000,
     location: 'Your Device'
   }
+];
+
+export const mockNotifications: Notification[] = [
+  {
+    id: 'notif_001',
+    type: 'ACCESS_REQUEST',
+    message: 'Dr. Maria Rodriguez from City General Hospital is requesting access to your records.',
+    timestamp: Date.now() - 30 * 60 * 1000,
+    isRead: false,
+    linkTo: 'access',
+  },
+  {
+    id: 'notif_002',
+    type: 'ACCESS_REQUEST',
+    message: 'Dr. James Chen from Heart & Vascular Center is requesting access to your records.',
+    timestamp: Date.now() - 2 * 60 * 60 * 1000,
+    isRead: false,
+    linkTo: 'access',
+  },
+  {
+    id: 'notif_003',
+    type: 'ACCESS_EXPIRING',
+    message: 'Access for Dr. Emily Thompson will expire in 2 days.',
+    timestamp: Date.now() - 3 * 60 * 60 * 1000,
+    isRead: true,
+    linkTo: 'access',
+  },
 ];

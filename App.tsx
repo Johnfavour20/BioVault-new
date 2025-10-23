@@ -9,13 +9,17 @@ import AccessManagement from './components/AccessManagement';
 import AuditTrail from './components/AuditTrail';
 import EmergencyAccess from './components/EmergencyAccess';
 import Settings from './components/Settings';
+import AIAssistant from './components/AIAssistant';
 import UploadModal from './components/modals/UploadModal';
 import QRCodeModal from './components/modals/QRCodeModal';
+import DocumentViewModal from './components/modals/DocumentViewModal';
+import NotificationsPanel from './components/NotificationsPanel';
 import SplashScreen from './components/SplashScreen';
+import ToastContainer from './components/ToastContainer';
 import type { User } from './types';
 
 const AppContent: React.FC = () => {
-  const { currentView, user, setUser, showUploadModal, showQRModal, isSidebarOpen, setIsSidebarOpen } = useApp();
+  const { currentView, user, setUser, showUploadModal, showQRModal, showDocumentViewModal, showNotificationsPanel, isSidebarOpen, setIsSidebarOpen } = useApp();
   const [showSplash, setShowSplash] = React.useState(true);
 
   React.useEffect(() => {
@@ -32,6 +36,7 @@ const AppContent: React.FC = () => {
   const renderView = () => {
     switch (currentView) {
       case 'dashboard': return <Dashboard />;
+      case 'ai_assistant': return <AIAssistant />;
       case 'documents': return <Documents />;
       case 'access': return <AccessManagement />;
       case 'audit': return <AuditTrail />;
@@ -46,8 +51,10 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      <ToastContainer />
       <Navbar />
+      {showNotificationsPanel && <NotificationsPanel />}
       <div className="flex pt-16">
         <Sidebar />
         <main className="flex-1 p-4 sm:p-6 md:ml-64 transition-all duration-300">
@@ -59,6 +66,7 @@ const AppContent: React.FC = () => {
       
       {showUploadModal && <UploadModal />}
       {showQRModal && <QRCodeModal />}
+      {showDocumentViewModal && <DocumentViewModal />}
     </div>
   );
 };

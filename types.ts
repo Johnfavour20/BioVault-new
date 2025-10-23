@@ -59,6 +59,21 @@ export interface AuditLog {
   location: string;
 }
 
+export interface Notification {
+  id: string;
+  type: 'ACCESS_REQUEST' | 'ACCESS_EXPIRING' | 'GENERAL';
+  message: string;
+  timestamp: number;
+  isRead: boolean;
+  linkTo: string;
+}
+
+export interface Toast {
+  id: number;
+  message: string;
+  type: 'success' | 'error' | 'info';
+}
+
 export interface AppContextType {
   currentView: string;
   setCurrentView: Dispatch<SetStateAction<string>>;
@@ -72,14 +87,22 @@ export interface AppContextType {
   setActiveAccess: Dispatch<SetStateAction<ActiveAccess[]>>;
   auditLog: AuditLog[];
   setAuditLog: Dispatch<SetStateAction<AuditLog[]>>;
-  notifications: number;
-  setNotifications: Dispatch<SetStateAction<number>>;
+  notifications: Notification[];
+  setNotifications: Dispatch<SetStateAction<Notification[]>>;
   selectedDocument: Document | null;
   setSelectedDocument: Dispatch<SetStateAction<Document | null>>;
   showUploadModal: boolean;
   setShowUploadModal: Dispatch<SetStateAction<boolean>>;
   showQRModal: boolean;
   setShowQRModal: Dispatch<SetStateAction<boolean>>;
+  showDocumentViewModal: boolean;
+  setShowDocumentViewModal: Dispatch<SetStateAction<boolean>>;
   isSidebarOpen: boolean;
   setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
+  showNotificationsPanel: boolean;
+  setShowNotificationsPanel: Dispatch<SetStateAction<boolean>>;
+  addToast: (message: string, type: Toast['type']) => void;
+  // FIX: Added toasts array and removeToast function to the context type for the notification system.
+  toasts: Toast[];
+  removeToast: (id: number) => void;
 }

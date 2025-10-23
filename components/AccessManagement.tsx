@@ -4,7 +4,7 @@ import { formatDate, formatTimeLeft } from '../utils';
 import { CheckCircle, XCircle, Users } from 'lucide-react';
 
 const AccessManagement: React.FC = () => {
-  const { accessRequests, setAccessRequests, activeAccess, setActiveAccess } = useApp();
+  const { accessRequests, setAccessRequests, activeAccess, setActiveAccess, addToast } = useApp();
   
   const handleApprove = (requestId: string) => {
     const request = accessRequests.find(r => r.id === requestId);
@@ -19,26 +19,35 @@ const AccessManagement: React.FC = () => {
         accessCount: 0
       }]);
       setAccessRequests(prev => prev.filter(r => r.id !== requestId));
+      addToast(`Access approved for ${request.provider}.`, 'success');
     }
   };
   
   const handleDeny = (requestId: string) => {
-    setAccessRequests(prev => prev.filter(r => r.id !== requestId));
+    const request = accessRequests.find(r => r.id === requestId);
+    if (request) {
+      setAccessRequests(prev => prev.filter(r => r.id !== requestId));
+      addToast(`Access denied for ${request.provider}.`, 'info');
+    }
   };
   
   const handleRevoke = (grantId: string) => {
-    setActiveAccess(prev => prev.filter(g => g.id !== grantId));
+    const grant = activeAccess.find(g => g.id === grantId);
+    if (grant) {
+      setActiveAccess(prev => prev.filter(g => g.id !== grantId));
+      addToast(`Access revoked for ${grant.provider}.`, 'success');
+    }
   };
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fadeIn">
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Access Control</h2>
         <p className="text-gray-600 mt-1">Manage who can view your medical records</p>
       </div>
       
       {accessRequests.length > 0 && (
-        <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200">
+        <div className="bg-white rounded-2xl p-4 sm:p-6 border-2 border-gray-200 shadow-xl">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-semibold text-lg">Pending Requests ({accessRequests.length})</h3>
             <span className="text-sm bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">
@@ -48,7 +57,7 @@ const AccessManagement: React.FC = () => {
           
           <div className="space-y-4">
             {accessRequests.map(request => (
-              <div key={request.id} className="border border-gray-200 rounded-xl p-4 sm:p-6 hover:border-blue-300 transition-colors">
+              <div key={request.id} className="border-2 border-red-300 bg-red-50 rounded-2xl p-4 sm:p-6 hover:border-blue-300 transition-colors shadow-lg">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-sky-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
@@ -62,7 +71,7 @@ const AccessManagement: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <div className="bg-white rounded-lg p-4 mb-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs text-gray-600 mb-1">Reason for Access</p>
@@ -89,14 +98,14 @@ const AccessManagement: React.FC = () => {
                 <div className="flex flex-col sm:flex-row items-center gap-3">
                   <button
                     onClick={() => handleApprove(request.id)}
-                    className="w-full sm:w-auto flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg hover:shadow-lg transition-all font-medium flex items-center justify-center"
+                    className="w-full sm:w-auto flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg hover:shadow-lg transition-all font-bold flex items-center justify-center shadow-md"
                   >
                     <CheckCircle className="w-5 h-5 mr-2" />
                     Approve Access
                   </button>
                   <button
                     onClick={() => handleDeny(request.id)}
-                    className="w-full sm:w-auto flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium flex items-center justify-center"
+                    className="w-full sm:w-auto flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors font-bold flex items-center justify-center"
                   >
                     <XCircle className="w-5 h-5 mr-2" />
                     Deny
@@ -108,13 +117,13 @@ const AccessManagement: React.FC = () => {
         </div>
       )}
       
-      <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border-2 border-gray-200 shadow-xl">
         <h3 className="font-semibold text-lg mb-6">Active Access ({activeAccess.length})</h3>
         
         {activeAccess.length > 0 ? (
           <div className="space-y-4">
             {activeAccess.map(grant => (
-              <div key={grant.id} className="border border-gray-200 rounded-xl p-4 sm:p-6">
+              <div key={grant.id} className="border-2 border-gray-200 rounded-2xl p-4 sm:p-6 hover:shadow-lg transition-shadow">
                 <div className="flex flex-col sm:flex-row items-start justify-between mb-4 gap-2">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
@@ -164,7 +173,7 @@ const AccessManagement: React.FC = () => {
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
                         className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all"
-                        style={{ width: `${Math.max(0, Math.min(100, ((grant.expiresAt - grant.grantedAt) - (Date.now() - grant.grantedAt)) / (grant.expiresAt - grant.grantedAt) * 100))}%` }}
+                        style={{ width: `${Math.max(0, Math.min(100, ((grant.expiresAt - Date.now()) / (grant.expiresAt - grant.grantedAt)) * 100))}%` }}
                       ></div>
                     </div>
                   </div>
@@ -174,7 +183,7 @@ const AccessManagement: React.FC = () => {
                   <button className="flex-1 bg-blue-50 text-blue-600 py-2 px-3 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
                     View Activity
                   </button>
-                  <button className="flex-1 bg-gray-50 text-gray-600 py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium">
+                  <button className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
                     Extend Access
                   </button>
                   <button

@@ -1,0 +1,92 @@
+import React from 'react';
+import { useApp } from '../../context/AppContext';
+import { formatDate } from '../../utils';
+import { XCircle, FileText, Clock, HardDrive, Tag } from 'lucide-react';
+
+const DocumentViewModal: React.FC = () => {
+  const { selectedDocument, setShowDocumentViewModal } = useApp();
+  
+  if (!selectedDocument) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-3xl w-full p-6 sm:p-8 flex flex-col h-[90vh]">
+        <div className="flex items-start justify-between mb-6 flex-shrink-0">
+          <div className="flex items-center space-x-4">
+             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <FileText className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 break-all">{selectedDocument.name}</h2>
+                <p className="text-sm text-gray-600">Secure Document Viewer</p>
+              </div>
+          </div>
+          <button
+            onClick={() => setShowDocumentViewModal(false)}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Close document viewer"
+          >
+            <XCircle className="w-7 h-7" />
+          </button>
+        </div>
+        
+        <div className="flex-grow flex flex-col md:flex-row gap-6 overflow-hidden">
+          {/* Left panel: Preview */}
+          <div className="flex-1 bg-gray-100 border border-gray-200 rounded-xl flex items-center justify-center p-4">
+            <div className="text-center text-gray-500">
+              <FileText className="w-16 h-16 mx-auto mb-4" />
+              <h3 className="font-semibold text-lg text-gray-700">Document Preview</h3>
+              <p className="text-sm">Content would be securely rendered here.</p>
+            </div>
+          </div>
+
+          {/* Right panel: Details */}
+          <div className="w-full md:w-64 flex-shrink-0 space-y-4">
+            <h3 className="font-semibold text-lg text-gray-900 border-b pb-2">Details</h3>
+            <div className="space-y-3 text-sm">
+                <div className="flex items-center">
+                    <Clock className="w-4 h-4 text-gray-500 mr-3 flex-shrink-0" />
+                    <div>
+                        <p className="font-medium text-gray-800">Uploaded</p>
+                        <p className="text-gray-600">{formatDate(selectedDocument.uploadedAt)}</p>
+                    </div>
+                </div>
+                <div className="flex items-center">
+                    <Tag className="w-4 h-4 text-gray-500 mr-3 flex-shrink-0" />
+                    <div>
+                        <p className="font-medium text-gray-800">Category</p>
+                        <p className="text-gray-600">{selectedDocument.category}</p>
+                    </div>
+                </div>
+                 <div className="flex items-center">
+                    <HardDrive className="w-4 h-4 text-gray-500 mr-3 flex-shrink-0" />
+                    <div>
+                        <p className="font-medium text-gray-800">File Size</p>
+                        <p className="text-gray-600">{selectedDocument.size}</p>
+                    </div>
+                </div>
+                 <div className="flex items-start">
+                    <FileText className="w-4 h-4 text-gray-500 mr-3 mt-1 flex-shrink-0" />
+                    <div>
+                        <p className="font-medium text-gray-800">IPFS Hash</p>
+                        <p className="text-gray-600 text-xs break-all font-mono">{selectedDocument.ipfsHash}</p>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex-shrink-0 flex items-center justify-end">
+            <button 
+                onClick={() => setShowDocumentViewModal(false)}
+                className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all"
+            >
+                Close Viewer
+            </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DocumentViewModal;

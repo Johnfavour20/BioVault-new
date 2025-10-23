@@ -4,7 +4,7 @@ import { XCircle, Upload, FileText, Lock } from 'lucide-react';
 import type { Document } from '../../types';
 
 const UploadModal: React.FC = () => {
-  const { setShowUploadModal, setDocuments } = useApp();
+  const { setShowUploadModal, setDocuments, addToast } = useApp();
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -53,6 +53,7 @@ const UploadModal: React.FC = () => {
       setDocuments(prev => [newDoc, ...prev]);
       setUploading(false);
       setShowUploadModal(false);
+      addToast('Document uploaded successfully!', 'success');
     }, 2000);
   };
   
@@ -102,7 +103,7 @@ const UploadModal: React.FC = () => {
                 <p className="text-gray-900 font-medium mb-2">Drop your file here, or browse</p>
                 <p className="text-sm text-gray-600 mb-4">Supports: PDF, JPG, PNG (Max 50MB)</p>
                 <input type="file" onChange={handleFileChange} className="hidden" id="file-upload" accept=".pdf,.jpg,.jpeg,.png" />
-                <label htmlFor="file-upload" className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer font-medium">Browse Files</label>
+                <label htmlFor="file-upload" className="inline-block bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-2 rounded-lg transition-all cursor-pointer font-medium shadow-md hover:shadow-lg">Browse Files</label>
               </>
             )}
           </div>
@@ -119,7 +120,7 @@ const UploadModal: React.FC = () => {
           
           <div className="flex flex-col-reverse sm:flex-row items-center gap-3">
             <button onClick={() => setShowUploadModal(false)} className="w-full sm:w-auto flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium">Cancel</button>
-            <button onClick={handleUpload} disabled={!selectedFile || uploading} className="w-full sm:w-auto flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+            <button onClick={handleUpload} disabled={!selectedFile || uploading} className="w-full sm:w-auto flex-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-3 rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
               {uploading ? (
                 <span className="flex items-center justify-center">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>

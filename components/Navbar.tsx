@@ -3,7 +3,9 @@ import { useApp } from '../context/AppContext';
 import { Hash, Bell, Menu } from 'lucide-react';
 
 const Navbar: React.FC = () => {
-  const { user, notifications, setIsSidebarOpen } = useApp();
+  const { user, notifications, setShowNotificationsPanel, setIsSidebarOpen } = useApp();
+  
+  const unreadCount = notifications.filter(n => !n.isRead).length;
   
   return (
     <nav className="bg-white border-b border-gray-200 fixed w-full z-20 top-0">
@@ -25,11 +27,15 @@ const Navbar: React.FC = () => {
           </div>
           
           <div className="flex items-center space-x-2 sm:space-x-4">
-            <button className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            <button
+              onClick={() => setShowNotificationsPanel(prev => !prev)}
+              className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Toggle Notifications"
+            >
               <Bell className="w-5 h-5" />
-              {notifications > 0 && (
+              {unreadCount > 0 && (
                 <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {notifications}
+                  {unreadCount}
                 </span>
               )}
             </button>

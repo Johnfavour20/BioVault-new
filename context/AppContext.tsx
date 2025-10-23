@@ -1,6 +1,6 @@
-import React, { useState, createContext, useContext, ReactNode } from 'react';
-import type { AppContextType, User, Document, AccessRequest, ActiveAccess, AuditLog } from '../types';
-import { mockUser, mockDocuments, mockAccessRequests, mockActiveAccess, mockAuditLog } from '../constants';
+import React, { useState, createContext, useContext, ReactNode, useCallback } from 'react';
+import type { AppContextType, User, Document, AccessRequest, ActiveAccess, AuditLog, Notification, Toast } from '../types';
+import { mockUser, mockDocuments, mockAccessRequests, mockActiveAccess, mockAuditLog, mockNotifications } from '../constants';
 
 const AppContext = createContext<AppContextType | null>(null);
 
@@ -21,26 +21,34 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [accessRequests, setAccessRequests] = useState<AccessRequest[]>(mockAccessRequests);
   const [activeAccess, setActiveAccess] = useState<ActiveAccess[]>(mockActiveAccess);
   const [auditLog, setAuditLog] = useState<AuditLog[]>(mockAuditLog);
-  const [notifications, setNotifications] = useState(2);
+  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [showDocumentViewModal, setShowDocumentViewModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showNotificationsPanel, setShowNotificationsPanel] = useState(false);
+  const [toasts, setToasts] = useState<Toast[]>([]);
 
-  // This effect simulates connecting to a wallet and fetching initial user data.
-  // In a real app, this would be an async call to a wallet connector.
+  const removeToast = (id: number) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  };
+
+  const addToast = useCallback((message: string, type: Toast['type']) => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type }]);
+    // The ToastMessage component now handles its own dismissal timer to allow for exit animations.
+  }, []);
+
+
   React.useEffect(() => {
      if (user) {
-        // user is already "connected"
         return;
      }
-    // Simulate wallet connection after a short delay
     const timer = setTimeout(() => {
         setUser(mockUser);
-        setNotifications(mockAccessRequests.length);
     }, 500);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const value: AppContextType = {
@@ -64,8 +72,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setShowUploadModal,
     showQRModal,
     setShowQRModal,
+    showDocumentViewModal,
+    setShowDocumentViewModal,
     isSidebarOpen,
-    setIsSidebarOpen
+    setIsSidebarOpen,
+    showNotificationsPanel,
+    setShowNotificationsPanel,
+    addToast,
+    toasts,
+    removeToast,
   };
 
   return (

@@ -14,7 +14,7 @@ const Dashboard: React.FC = () => {
   ];
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fadeIn">
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Welcome back, {user?.name.split(' ')[0]}! 👋</h2>
         <p className="text-gray-600 mt-1">Here's what's happening with your health data</p>
@@ -23,27 +23,29 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <button
           onClick={() => setShowUploadModal(true)}
-          className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl hover:shadow-lg transition-all text-left"
+          className="bg-gradient-to-br from-blue-500 to-purple-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all text-left"
         >
-          <Upload className="w-8 h-8 mb-3" />
+          <Upload className="w-10 h-10 mb-3" />
           <h3 className="font-semibold text-lg mb-1">Upload Document</h3>
           <p className="text-blue-100 text-sm">Add new medical records</p>
         </button>
         
         <button
           onClick={() => setShowQRModal(true)}
-          className="bg-white border border-gray-200 p-6 rounded-xl hover:shadow-lg transition-all text-left text-gray-800"
+          className="bg-white border-2 border-gray-200 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all text-left text-gray-800"
         >
-          <QrCode className="w-8 h-8 mb-3 text-blue-600" />
+          <QrCode className="w-10 h-10 mb-3 text-blue-600" />
           <h3 className="font-semibold text-lg mb-1">Show QR Code</h3>
           <p className="text-gray-500 text-sm">For provider access</p>
         </button>
         
         <button
           onClick={() => setCurrentView('access')}
-          className="bg-white border border-gray-200 p-6 rounded-xl hover:shadow-lg transition-all text-left text-gray-800"
+          className="bg-white border-2 border-gray-200 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all text-left text-gray-800 relative"
         >
-          <Bell className="w-8 h-8 mb-3 text-blue-600" />
+          {accessRequests.length > 0 && <span className="absolute top-4 right-4 h-3 w-3 rounded-full bg-red-500 animate-ping"></span>}
+          {accessRequests.length > 0 && <span className="absolute top-4 right-4 h-3 w-3 rounded-full bg-red-500"></span>}
+          <Bell className="w-10 h-10 mb-3 text-blue-600" />
           <h3 className="font-semibold text-lg mb-1">Access Requests</h3>
           <p className="text-gray-500 text-sm">{accessRequests.length} pending</p>
         </button>
@@ -53,26 +55,26 @@ const Dashboard: React.FC = () => {
         {stats.map((stat, idx) => {
           const Icon = stat.icon;
           const colors = {
-            blue: 'bg-blue-100 text-blue-600',
-            green: 'bg-green-100 text-green-600',
-            yellow: 'bg-yellow-100 text-yellow-600',
-            sky: 'bg-sky-100 text-sky-600'
+            blue: 'from-blue-500 to-blue-600',
+            green: 'from-green-500 to-green-600',
+            yellow: 'from-yellow-500 to-yellow-600',
+            sky: 'from-sky-500 to-sky-600'
           };
           
           return (
-            <div key={idx} className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200">
-              <div className={`w-12 h-12 ${colors[stat.color]} rounded-lg flex items-center justify-center mb-3`}>
+            <div key={idx} className={`bg-gradient-to-br ${colors[stat.color]} text-white rounded-2xl p-4 sm:p-6 shadow-lg hover:scale-105 transition-transform`}>
+              <div className="bg-white/20 w-12 h-12 rounded-lg flex items-center justify-center mb-3">
                 <Icon className="w-6 h-6" />
               </div>
-              <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stat.value}</p>
-              <p className="text-sm text-gray-600 mt-1">{stat.label}</p>
+              <p className="text-2xl sm:text-3xl font-bold">{stat.value}</p>
+              <p className="text-sm opacity-90 mt-1">{stat.label}</p>
             </div>
           );
         })}
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl">
           <h3 className="font-semibold text-lg mb-4">Health Profile</h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between py-2 border-b border-gray-100">
@@ -98,7 +100,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl">
           <h3 className="font-semibold text-lg mb-4">Current Medications</h3>
           <div className="space-y-3">
             {user?.medications.map((med, idx) => (
@@ -116,7 +118,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
+      <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-lg">Recent Documents</h3>
           <button

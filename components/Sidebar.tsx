@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Activity, FileText, Users, Shield, AlertTriangle, Settings, LogOut, LucideIcon } from 'lucide-react';
+import { Activity, FileText, Users, Shield, AlertTriangle, Settings, LogOut, LucideIcon, Sparkles } from 'lucide-react';
 
 interface MenuItem {
   id: string;
@@ -10,6 +10,7 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { id: 'dashboard', icon: Activity, label: 'Dashboard' },
+  { id: 'ai_assistant', icon: Sparkles, label: 'AI Assistant' },
   { id: 'documents', icon: FileText, label: 'My Documents' },
   { id: 'access', icon: Users, label: 'Access Control' },
   { id: 'audit', icon: Shield, label: 'Audit Trail' },
@@ -18,11 +19,18 @@ const menuItems: MenuItem[] = [
 ];
 
 const Sidebar: React.FC = () => {
-  const { currentView, setCurrentView, isSidebarOpen, setIsSidebarOpen } = useApp();
+  const { currentView, setCurrentView, isSidebarOpen, setIsSidebarOpen, setUser, addToast } = useApp();
   
   const handleNavigate = (viewId: string) => {
     setCurrentView(viewId);
     setIsSidebarOpen(false); // Close sidebar after navigation
+  };
+
+  const handleDisconnect = () => {
+    addToast('Successfully disconnected.', 'info');
+    setTimeout(() => {
+        setUser(null);
+    }, 300);
   };
 
   return (
@@ -37,9 +45,9 @@ const Sidebar: React.FC = () => {
               <button
                 key={item.id}
                 onClick={() => handleNavigate(item.id)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all transform ${
                   isActive
-                    ? 'bg-blue-600 text-white shadow-md'
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -51,7 +59,10 @@ const Sidebar: React.FC = () => {
         </nav>
         
         <div className="p-4 border-t border-gray-200">
-          <button className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+          <button 
+            onClick={handleDisconnect}
+            className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          >
             <LogOut className="w-5 h-5" />
             <span className="font-medium">Disconnect</span>
           </button>
