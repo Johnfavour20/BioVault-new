@@ -1,8 +1,7 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { GoogleGenAI } from "@google/genai";
-import { Sparkles, Send, User, Bot } from 'lucide-react';
+import { GoogleGenAI, Chat } from "@google/genai";
+import { Sparkles, Send, Bot } from 'lucide-react';
 
 interface Message {
   sender: 'user' | 'ai';
@@ -27,6 +26,41 @@ const AIAssistant: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
+  const chatRef = useRef<Chat | null>(null);
+
+  useEffect(() => {
+    if (user && healthRecords) {
+      const recordList = healthRecords.map(doc => `- ${doc.name} (${doc.type})`).join('\n');
+      const allergies = user.allergies.join(', ') || 'None';
+      const conditions = user.chronicConditions.join(', ') || 'None';
+      const medications = user.medications.map(m => `${m.name} (${m.dosage}, ${m.frequency})`).join(', ') || 'None';
+
+      const systemInstruction = `You are BioVault AI, a helpful assistant for managing personal health records. You are friendly, professional, and you MUST NOT provide medical advice. You can only answer questions based on the data provided. Always end your responses with a disclaimer: "This is not medical advice. Please consult a healthcare professional for any medical concerns."
+
+User Data:
+- Name: ${user.name}
+- Date of Birth: ${user.dateOfBirth}
+- Blood Type: ${user.bloodType}
+- Allergies: ${allergies}
+- Chronic Conditions: ${conditions}
+- Medications: ${medications}
+- Health Records on file:
+${recordList}`;
+
+      try {
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        chatRef.current = ai.chats.create({
+          model: 'gemini-2.5-flash',
+          config: {
+            systemInstruction: systemInstruction,
+          },
+        });
+      } catch (error) {
+        console.error("Failed to initialize Gemini Chat:", error);
+        setMessages(prev => [...prev, { sender: 'ai', text: "Sorry, I couldn't connect to the AI service." }]);
+      }
+    }
+  }, [user, healthRecords]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -34,52 +68,28 @@ const AIAssistant: React.FC = () => {
 
   useEffect(scrollToBottom, [messages, isLoading]);
 
-  const constructPrompt = (question: string) => {
-    const recordList = healthRecords.map(doc => `- ${doc.name} (${doc.type})`).join('\n');
-    const allergies = user?.allergies.join(', ') || 'None';
-    const conditions = user?.chronicConditions.join(', ') || 'None';
-    const medications = user?.medications.map(m => `${m.name} (${m.dosage}, ${m.frequency})`).join(', ') || 'None';
-
-    return `You are BioVault AI, a helpful assistant for managing personal health records. You are friendly, professional, and you MUST NOT provide medical advice. You can only answer questions based on the data provided. Always end your responses with a disclaimer: "This is not medical advice. Please consult a healthcare professional for any medical concerns."
-
-User Data:
-- Name: ${user?.name}
-- Date of Birth: ${user?.dateOfBirth}
-- Blood Type: ${user?.bloodType}
-- Allergies: ${allergies}
-- Chronic Conditions: ${conditions}
-- Medications: ${medications}
-- Health Records on file:
-${recordList}
-
-User Question: ${question}`;
-  };
-
   const handleSendMessage = async (messageText?: string) => {
     const textToSend = messageText || inputValue;
-    if (textToSend.trim() === '' || isLoading) return;
+    if (textToSend.trim() === '' || isLoading || !chatRef.current) return;
 
     const userMessage: Message = { sender: 'user', text: textToSend };
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMessage, { sender: 'ai', text: '' }]);
     setInputValue('');
     setIsLoading(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = constructPrompt(textToSend);
-      
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-      });
-
-      const aiMessage: Message = { sender: 'ai', text: response.text };
-      setMessages(prev => [...prev, aiMessage]);
-
+      const stream = await chatRef.current.sendMessageStream({ message: textToSend });
+      for await (const chunk of stream) {
+        setMessages(prev => {
+          const lastMessage = prev[prev.length - 1];
+          const updatedText = lastMessage.text + chunk.text;
+          return [...prev.slice(0, -1), { ...lastMessage, text: updatedText }];
+        });
+      }
     } catch (error) {
       console.error("Error calling Gemini API:", error);
       const errorMessage: Message = { sender: 'ai', text: "I'm sorry, I'm having trouble connecting right now. Please try again later." };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => [...prev.slice(0, -1), errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -93,7 +103,7 @@ User Question: ${question}`;
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fadeIn">
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] flex items-center">
           <Sparkles className="w-6 h-6 mr-2 text-blue-600" />
@@ -102,17 +112,17 @@ User Question: ${question}`;
         <p className="text-[var(--text-secondary)] mt-1">Ask questions about your health records</p>
       </div>
 
-      <div className="bg-[var(--card-background)] rounded-xl border border-[var(--border-color)] flex flex-col h-[70vh]">
+      <div className="bg-[var(--card-background)] rounded-xl border border-[var(--border-color)] flex flex-col h-[70vh] shadow-xl">
         <div className="flex-1 p-6 overflow-y-auto space-y-4">
           {messages.map((msg, index) => (
             <div key={index} className={`flex items-start gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
               {msg.sender === 'ai' && (
-                <div className="w-10 h-10 bg-[var(--primary)] rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
                   <Bot className="w-6 h-6 text-[var(--primary-foreground)]" />
                 </div>
               )}
               <div className={`max-w-xl p-4 rounded-xl shadow-sm ${msg.sender === 'user' ? 'bg-[var(--primary)] text-[var(--primary-foreground)] rounded-br-none' : 'bg-[var(--muted-background)] text-[var(--text-primary)] rounded-bl-none'}`}>
-                 <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+                 <p className="text-sm whitespace-pre-wrap">{msg.text}{isLoading && msg.sender === 'ai' && index === messages.length - 1 && <span className="inline-block w-2 h-4 bg-[var(--text-primary)] ml-1 animate-pulse"></span>}</p>
               </div>
               {msg.sender === 'user' && (
                 <div className="w-10 h-10 bg-gradient-to-br from-sky-400 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
@@ -121,20 +131,6 @@ User Question: ${question}`;
               )}
             </div>
           ))}
-          {isLoading && (
-            <div className="flex items-start gap-3 justify-start">
-              <div className="w-10 h-10 bg-[var(--primary)] rounded-full flex items-center justify-center flex-shrink-0">
-                <Bot className="w-6 h-6 text-[var(--primary-foreground)]" />
-              </div>
-              <div className="max-w-md p-4 rounded-xl bg-[var(--muted-background)] text-[var(--text-primary)] rounded-bl-none shadow-sm">
-                <div className="flex items-center space-x-2">
-                  <span className="h-2 w-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                  <span className="h-2 w-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                  <span className="h-2 w-2 bg-blue-500 rounded-full animate-bounce"></span>
-                </div>
-              </div>
-            </div>
-          )}
           {messages.length === 1 && !isLoading && (
             <div className="pt-4">
               <h4 className="text-sm font-semibold text-center text-[var(--text-secondary)] mb-3">Or try one of these suggestions:</h4>

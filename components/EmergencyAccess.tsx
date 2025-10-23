@@ -1,20 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { AlertTriangle, QrCode, Shield, CheckCircle, XCircle } from 'lucide-react';
 
+const initialEmergencyPack = {
+  bloodType: true,
+  allergies: true,
+  medications: true,
+  conditions: true,
+  emergencyContacts: true,
+  recentSurgeries: false
+};
+
 const EmergencyAccess: React.FC = () => {
-  const { user, setShowQRModal } = useApp();
-  const [emergencyPack, setEmergencyPack] = useState({
-    bloodType: true,
-    allergies: true,
-    medications: true,
-    conditions: true,
-    emergencyContacts: true,
-    recentSurgeries: false
-  });
+  const { user, setShowQRModal, addToast } = useApp();
+  const [emergencyPack, setEmergencyPack] = useState(initialEmergencyPack);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  useEffect(() => {
+    const changes = JSON.stringify(emergencyPack) !== JSON.stringify(initialEmergencyPack);
+    setHasChanges(changes);
+  }, [emergencyPack]);
+
+  const handleSave = () => {
+    // In a real app, this would be an API call
+    addToast('Emergency data pack updated!', 'success');
+    // This would be the new 'initial' state after saving
+    // For this demo, we can just reset the change tracking
+    setHasChanges(false); 
+  };
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fadeIn">
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">Emergency Access</h2>
         <p className="text-[var(--text-secondary)] mt-1">Configure what emergency responders can access</p>
@@ -114,6 +130,17 @@ const EmergencyAccess: React.FC = () => {
           ))}
         </div>
         
+        {hasChanges && (
+           <div className="mt-6 p-4 bg-[var(--card-background)] border-t border-[var(--border-color)] flex items-center justify-end">
+             <button
+               onClick={handleSave}
+               className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-lg font-semibold hover:shadow-lg transition-all"
+             >
+               Save Changes
+             </button>
+           </div>
+        )}
+
         <div className="mt-6 p-4 bg-yellow-400/10 border border-yellow-500/20 rounded-lg">
           <p className="text-sm text-yellow-800 dark:text-yellow-300">
             ⚠️ <strong>Recommendation:</strong> Include blood type and allergies at minimum. This critical information can save your life in emergency situations.

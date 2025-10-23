@@ -1,20 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Activity, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 const Settings: React.FC = () => {
   const { user, addToast } = useApp();
   const [activeTab, setActiveTab] = useState('profile');
-  
-  const tabs = [
-    { id: 'profile', label: 'Profile' },
-    { id: 'security', label: 'Security' },
-    { id: 'privacy', label: 'Privacy' },
-    { id: 'billing', label: 'Billing' }
-  ];
+  const [profileData, setProfileData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    dateOfBirth: user?.dateOfBirth || '',
+    bloodType: user?.bloodType || 'B+'
+  });
+  const [hasProfileChanges, setHasProfileChanges] = useState(false);
+  const [shareData, setShareData] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    const initialProfile = {
+      name: user.name,
+      email: user.email,
+      dateOfBirth: user.dateOfBirth,
+      bloodType: user.bloodType
+    };
+    const changes = JSON.stringify(profileData) !== JSON.stringify(initialProfile);
+    setHasProfileChanges(changes);
+  }, [profileData, user]);
+
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setProfileData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
   
   const handleSaveChanges = () => {
+    // In a real app, you would call an API to save the user data
     addToast('Profile updated successfully!', 'success');
+    setHasProfileChanges(false);
+  };
+
+  const handleDataSharingToggle = () => {
+    const newShareData = !shareData;
+    setShareData(newShareData);
+    addToast(
+      `Research data sharing ${newShareData ? 'enabled' : 'disabled'}.`,
+      'info'
+    );
   };
 
   return (
@@ -26,17 +54,17 @@ const Settings: React.FC = () => {
       
       <div className="bg-[var(--card-background)] rounded-2xl border-2 border-[var(--border-color)] overflow-hidden shadow-xl">
         <div className="border-b border-[var(--border-color)] flex">
-          {tabs.map(tab => (
+          {['profile', 'security', 'privacy', 'billing'].map(tabId => (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 px-2 sm:px-6 py-4 font-medium transition-colors text-sm sm:text-base whitespace-nowrap ${
-                activeTab === tab.id
+              key={tabId}
+              onClick={() => setActiveTab(tabId)}
+              className={`flex-1 px-2 sm:px-6 py-4 font-medium transition-colors text-sm sm:text-base whitespace-nowrap capitalize ${
+                activeTab === tabId
                   ? 'bg-blue-500/5 text-blue-600 border-b-2 border-blue-600'
                   : 'text-[var(--text-secondary)] hover:bg-[var(--muted-background)]'
               }`}
             >
-              {tab.label}
+              {tabId}
             </button>
           ))}
         </div>
@@ -64,7 +92,9 @@ const Settings: React.FC = () => {
                   <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Full Name</label>
                   <input
                     type="text"
-                    defaultValue={user?.name}
+                    name="name"
+                    value={profileData.name}
+                    onChange={handleProfileChange}
                     className="w-full px-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]"
                   />
                 </div>
@@ -72,7 +102,9 @@ const Settings: React.FC = () => {
                   <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Email</label>
                   <input
                     type="email"
-                    defaultValue={user?.email}
+                    name="email"
+                    value={profileData.email}
+                    onChange={handleProfileChange}
                     className="w-full px-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]"
                   />
                 </div>
@@ -80,14 +112,18 @@ const Settings: React.FC = () => {
                   <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Date of Birth</label>
                   <input
                     type="date"
-                    defaultValue={user?.dateOfBirth}
+                    name="dateOfBirth"
+                    value={profileData.dateOfBirth}
+                    onChange={handleProfileChange}
                     className="w-full px-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Blood Type</label>
                   <select
-                    defaultValue={user?.bloodType}
+                    name="bloodType"
+                    value={profileData.bloodType}
+                    onChange={handleProfileChange}
                     className="w-full px-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]"
                   >
                     <option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
@@ -97,7 +133,9 @@ const Settings: React.FC = () => {
               
               <button 
                 onClick={handleSaveChanges}
-                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-2 rounded-lg transition-all font-medium shadow-md hover:shadow-lg">
+                disabled={!hasProfileChanges}
+                className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-lg transition-all font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Save Changes
               </button>
             </div>
@@ -158,7 +196,7 @@ const Settings: React.FC = () => {
                       <p className="text-sm text-[var(--text-secondary)]">Share anonymized data with researchers</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer flex-shrink-0 self-end sm:self-center">
-                      <input type="checkbox" className="sr-only peer" />
+                      <input type="checkbox" checked={shareData} onChange={handleDataSharingToggle} className="sr-only peer" />
                       <div className="w-11 h-6 bg-[var(--border-color)] rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
                   </div>

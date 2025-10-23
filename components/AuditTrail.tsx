@@ -1,11 +1,12 @@
-
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { formatDate } from '../utils';
 import { Download, Search, Calendar, Shield, Eye, CheckCircle, Upload, XCircle, AlertTriangle, Activity, LucideIcon } from 'lucide-react';
 
 const AuditTrail: React.FC = () => {
   const { auditLog } = useApp();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('ALL');
   
   const getEventIcon = (eventType: string): LucideIcon => {
     switch (eventType) {
@@ -28,9 +29,23 @@ const AuditTrail: React.FC = () => {
       default: return 'gray';
     }
   };
+
+  const filteredLog = useMemo(() => {
+    return auditLog.filter(entry => {
+      const matchesSearch =
+        entry.actor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.resource.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.eventType.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesType = filterType === 'ALL' || entry.eventType === filterType;
+      
+      return matchesSearch && matchesType;
+    });
+  }, [auditLog, searchTerm, filterType]);
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fadeIn">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">Audit Trail</h2>
@@ -48,16 +63,24 @@ const AuditTrail: React.FC = () => {
             <Search className="w-5 h-5 text-[var(--text-secondary)] absolute left-3 top-1/2 transform -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search audit log..."
+              placeholder="Search by actor, resource, location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]"
             />
           </div>
           <div className="flex items-center gap-4">
-            <select className="flex-1 w-full px-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]">
-              <option>All Events</option>
-              <option>Access Events</option>
-              <option>Record Events</option>
-              <option>Emergency Events</option>
+            <select 
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="flex-1 w-full px-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]"
+            >
+              <option value="ALL">All Events</option>
+              <option value="DOCUMENT_VIEWED">Record Viewed</option>
+              <option value="DOCUMENT_UPLOADED">Record Uploaded</option>
+              <option value="ACCESS_APPROVED">Access Approved</option>
+              <option value="ACCESS_DENIED">Access Denied</option>
+              <option value="ACCESS_REVOKED">Access Revoked</option>
             </select>
             <button className="bg-[var(--muted-background)] p-2 rounded-lg hover:bg-[var(--border-color)] transition-colors">
               <Calendar className="w-5 h-5 text-[var(--text-secondary)]" />
@@ -68,7 +91,7 @@ const AuditTrail: React.FC = () => {
         <div className="relative">
           <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-[var(--border-color)]"></div>
           <div className="space-y-4">
-            {auditLog.map((entry) => {
+            {filteredLog.map((entry) => {
               const Icon = getEventIcon(entry.eventType);
               const color = getEventColor(entry.eventType);
               const colorClasses = {
@@ -110,6 +133,14 @@ const AuditTrail: React.FC = () => {
           </div>
         </div>
         
+        {filteredLog.length === 0 && (
+          <div className="text-center py-12 border-2 border-dashed border-[var(--border-color)] rounded-xl">
+             <Search className="w-16 h-16 text-gray-400/50 mx-auto mb-4" />
+             <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">No Matching Events</h4>
+             <p className="text-[var(--text-secondary)]">Try adjusting your search or filter</p>
+          </div>
+        )}
+
         <div className="mt-6 text-center">
           <button className="text-blue-600 hover:text-blue-700 font-medium text-sm">
             Load More Events

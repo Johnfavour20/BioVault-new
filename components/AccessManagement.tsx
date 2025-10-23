@@ -1,41 +1,77 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { formatDate, formatTimeLeft } from '../utils';
-import { CheckCircle, XCircle, Users } from 'lucide-react';
+import { CheckCircle, XCircle, Users, BellOff } from 'lucide-react';
+import ConfirmationModal from './modals/ConfirmationModal';
+import type { AccessRequest, ActiveAccess } from '../types';
+
+type ConfirmationDetails = {
+    action: 'approve' | 'deny';
+    details: AccessRequest;
+} | {
+    action: 'revoke';
+    details: ActiveAccess;
+};
 
 const AccessManagement: React.FC = () => {
   const { accessRequests, setAccessRequests, activeAccess, setActiveAccess, addToast } = useApp();
+  const [confirmation, setConfirmation] = useState<ConfirmationDetails | null>(null);
+
+  const handleApprove = (request: AccessRequest) => {
+    setConfirmation({ action: 'approve', details: request });
+  };
   
-  const handleApprove = (requestId: string) => {
-    const request = accessRequests.find(r => r.id === requestId);
-    if (request) {
+  const handleDeny = (request: AccessRequest) => {
+    setConfirmation({ action: 'deny', details: request });
+  };
+  
+  const handleRevoke = (grant: ActiveAccess) => {
+    setConfirmation({ action: 'revoke', details: grant });
+  };
+  
+  const executeConfirmation = () => {
+    if (!confirmation) return;
+    const { action, details } = confirmation;
+    
+    if (action === 'approve') {
+      const request = details as AccessRequest;
       setActiveAccess(prev => [...prev, {
         id: `grant_${Date.now()}`,
         provider: request.provider,
         institution: request.institution,
         grantedAt: Date.now(),
-        expiresAt: Date.now() + 2 * 24 * 60 * 60 * 1000, // 48 hours
+        expiresAt: Date.now() + 2 * 24 * 60 * 60 * 1000, // 48 hours for demo
         dataCategories: request.dataCategories,
         accessCount: 0
       }]);
-      setAccessRequests(prev => prev.filter(r => r.id !== requestId));
+      setAccessRequests(prev => prev.filter(r => r.id !== request.id));
       addToast(`Access approved for ${request.provider}.`, 'success');
-    }
-  };
-  
-  const handleDeny = (requestId: string) => {
-    const request = accessRequests.find(r => r.id === requestId);
-    if (request) {
-      setAccessRequests(prev => prev.filter(r => r.id !== requestId));
+    } else if (action === 'deny') {
+      const request = details as AccessRequest;
+      setAccessRequests(prev => prev.filter(r => r.id !== request.id));
       addToast(`Access denied for ${request.provider}.`, 'info');
-    }
-  };
-  
-  const handleRevoke = (grantId: string) => {
-    const grant = activeAccess.find(g => g.id === grantId);
-    if (grant) {
-      setActiveAccess(prev => prev.filter(g => g.id !== grantId));
+    } else if (action === 'revoke') {
+      const grant = details as ActiveAccess;
+      setActiveAccess(prev => prev.filter(g => g.id !== grant.id));
       addToast(`Access revoked for ${grant.provider}.`, 'success');
+    }
+    
+    setConfirmation(null);
+  };
+
+  const getConfirmationMessage = () => {
+    if (!confirmation) return '';
+    const { action, details } = confirmation;
+
+    switch (action) {
+      case 'approve':
+        return <p>Are you sure you want to grant access to <strong>{details.provider}</strong> for <strong>{(details as AccessRequest).requestedDuration}</strong>?</p>;
+      case 'deny':
+        return <p>Are you sure you want to deny the access request from <strong>{details.provider}</strong>?</p>;
+      case 'revoke':
+        return <p>Are you sure you want to revoke access for <strong>{details.provider}</strong>? This action cannot be undone.</p>;
+      default:
+        return '';
     }
   };
   
@@ -46,15 +82,17 @@ const AccessManagement: React.FC = () => {
         <p className="text-[var(--text-secondary)] mt-1">Manage who can view your medical records</p>
       </div>
       
-      {accessRequests.length > 0 && (
-        <div className="bg-[var(--card-background)] rounded-2xl p-4 sm:p-6 border-2 border-[var(--border-color)] shadow-xl">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-semibold text-lg">Pending Requests ({accessRequests.length})</h3>
+      <div className="bg-[var(--card-background)] rounded-2xl p-4 sm:p-6 border-2 border-[var(--border-color)] shadow-xl">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-semibold text-lg">Pending Requests ({accessRequests.length})</h3>
+          {accessRequests.length > 0 && (
             <span className="text-sm bg-yellow-400/10 text-yellow-600 px-3 py-1 rounded-full">
               Action Required
             </span>
-          </div>
-          
+          )}
+        </div>
+        
+        {accessRequests.length > 0 ? (
           <div className="space-y-4">
             {accessRequests.map(request => (
               <div key={request.id} className="border-2 border-red-500/30 bg-red-500/5 rounded-2xl p-4 sm:p-6 hover:border-blue-500/30 transition-colors shadow-lg">
@@ -97,14 +135,14 @@ const AccessManagement: React.FC = () => {
                 
                 <div className="flex flex-col sm:flex-row items-center gap-3">
                   <button
-                    onClick={() => handleApprove(request.id)}
+                    onClick={() => handleApprove(request)}
                     className="w-full sm:w-auto flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg hover:shadow-lg transition-all font-bold flex items-center justify-center shadow-md"
                   >
                     <CheckCircle className="w-5 h-5 mr-2" />
                     Approve Access
                   </button>
                   <button
-                    onClick={() => handleDeny(request.id)}
+                    onClick={() => handleDeny(request)}
                     className="w-full sm:w-auto flex-1 bg-[var(--muted-background)] text-[var(--text-secondary)] py-3 rounded-lg hover:bg-[var(--border-color)] transition-colors font-bold flex items-center justify-center"
                   >
                     <XCircle className="w-5 h-5 mr-2" />
@@ -114,8 +152,14 @@ const AccessManagement: React.FC = () => {
               </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="text-center py-12 border-2 border-dashed border-[var(--border-color)] rounded-xl">
+            <BellOff className="w-16 h-16 text-gray-400/50 mx-auto mb-4" />
+            <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">All Caught Up!</h4>
+            <p className="text-[var(--text-secondary)]">You have no pending access requests</p>
+          </div>
+        )}
+      </div>
       
       <div className="bg-[var(--card-background)] rounded-2xl p-4 sm:p-6 border-2 border-[var(--border-color)] shadow-xl">
         <h3 className="font-semibold text-lg mb-6">Active Access ({activeAccess.length})</h3>
@@ -187,7 +231,7 @@ const AccessManagement: React.FC = () => {
                     Extend Access
                   </button>
                   <button
-                    onClick={() => handleRevoke(grant.id)}
+                    onClick={() => handleRevoke(grant)}
                     className="bg-red-500/10 text-red-600 px-4 py-2 rounded-lg hover:bg-red-500/20 transition-colors text-sm font-medium"
                   >
                     Revoke
@@ -204,6 +248,26 @@ const AccessManagement: React.FC = () => {
           </div>
         )}
       </div>
+
+      {confirmation && (
+        <ConfirmationModal
+          isOpen={!!confirmation}
+          onClose={() => setConfirmation(null)}
+          onConfirm={executeConfirmation}
+          title={
+            confirmation.action === 'approve' ? 'Approve Access Request?' :
+            confirmation.action === 'deny' ? 'Deny Access Request?' :
+            'Revoke Access?'
+          }
+          message={getConfirmationMessage()}
+          confirmText={
+             confirmation.action === 'approve' ? 'Yes, Approve' :
+             confirmation.action === 'deny' ? 'Yes, Deny' :
+             'Yes, Revoke'
+          }
+          confirmVariant={confirmation.action === 'approve' ? 'primary' : 'destructive'}
+        />
+      )}
     </div>
   );
 };
