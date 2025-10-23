@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Shield, Bell, Menu } from 'lucide-react';
+import { Hash, Bell, Menu } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const { user, notifications, setIsSidebarOpen } = useApp();
@@ -14,8 +14,8 @@ const Navbar: React.FC = () => {
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <Shield className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Hash className="w-6 h-6 text-white" />
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-xl font-bold text-gray-900">BioVault</h1>
@@ -39,7 +39,7 @@ const Navbar: React.FC = () => {
                 <p className="text-sm font-medium text-gray-900">{user?.name}</p>
                 <p className="text-xs text-gray-500">{user?.id.slice(0, 10)}...</p>
               </div>
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+              <div className="w-10 h-10 bg-gradient-to-br from-sky-400 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
                 {user?.name.split(' ').map(n => n[0]).join('')}
               </div>
             </div>

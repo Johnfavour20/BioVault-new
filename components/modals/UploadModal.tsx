@@ -119,7 +119,7 @@ const UploadModal: React.FC = () => {
           
           <div className="flex flex-col-reverse sm:flex-row items-center gap-3">
             <button onClick={() => setShowUploadModal(false)} className="w-full sm:w-auto flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium">Cancel</button>
-            <button onClick={handleUpload} disabled={!selectedFile || uploading} className="w-full sm:w-auto flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg hover:shadow-lg transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+            <button onClick={handleUpload} disabled={!selectedFile || uploading} className="w-full sm:w-auto flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed">
               {uploading ? (
                 <span className="flex items-center justify-center">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>

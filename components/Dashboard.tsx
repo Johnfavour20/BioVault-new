@@ -10,7 +10,7 @@ const Dashboard: React.FC = () => {
     { label: 'Total Documents', value: documents.length, icon: FileText, color: 'blue' },
     { label: 'Active Access', value: 1, icon: Users, color: 'green' },
     { label: 'Pending Requests', value: accessRequests.length, icon: Clock, color: 'yellow' },
-    { label: 'Total Access Events', value: 47, icon: Activity, color: 'purple' }
+    { label: 'Total Access Events', value: 47, icon: Activity, color: 'sky' }
   ];
   
   return (
@@ -32,20 +32,20 @@ const Dashboard: React.FC = () => {
         
         <button
           onClick={() => setShowQRModal(true)}
-          className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl hover:shadow-lg transition-all text-left"
+          className="bg-white border border-gray-200 p-6 rounded-xl hover:shadow-lg transition-all text-left text-gray-800"
         >
-          <QrCode className="w-8 h-8 mb-3" />
+          <QrCode className="w-8 h-8 mb-3 text-blue-600" />
           <h3 className="font-semibold text-lg mb-1">Show QR Code</h3>
-          <p className="text-purple-100 text-sm">For provider access</p>
+          <p className="text-gray-500 text-sm">For provider access</p>
         </button>
         
         <button
           onClick={() => setCurrentView('access')}
-          className="bg-gradient-to-br from-pink-500 to-pink-600 text-white p-6 rounded-xl hover:shadow-lg transition-all text-left"
+          className="bg-white border border-gray-200 p-6 rounded-xl hover:shadow-lg transition-all text-left text-gray-800"
         >
-          <Bell className="w-8 h-8 mb-3" />
+          <Bell className="w-8 h-8 mb-3 text-blue-600" />
           <h3 className="font-semibold text-lg mb-1">Access Requests</h3>
-          <p className="text-pink-100 text-sm">{accessRequests.length} pending</p>
+          <p className="text-gray-500 text-sm">{accessRequests.length} pending</p>
         </button>
       </div>
       
@@ -56,7 +56,7 @@ const Dashboard: React.FC = () => {
             blue: 'bg-blue-100 text-blue-600',
             green: 'bg-green-100 text-green-600',
             yellow: 'bg-yellow-100 text-yellow-600',
-            purple: 'bg-purple-100 text-purple-600'
+            sky: 'bg-sky-100 text-sky-600'
           };
           
           return (
@@ -130,8 +130,8 @@ const Dashboard: React.FC = () => {
           {documents.slice(0, 3).map(doc => (
             <div key={doc.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors">
               <div className="flex items-center space-x-3 mb-2 sm:mb-0">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-5 h-5 text-purple-600" />
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
                   <p className="font-medium text-gray-900">{doc.name}</p>

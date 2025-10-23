@@ -41,7 +41,7 @@ const Settings: React.FC = () => {
           {activeTab === 'profile' && (
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-3xl font-semibold flex-shrink-0">
+                <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-sky-500 rounded-full flex items-center justify-center text-white text-3xl font-semibold flex-shrink-0">
                   {user?.name.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
@@ -172,7 +172,7 @@ const Settings: React.FC = () => {
           
           {activeTab === 'billing' && (
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-200">
+              <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
                   <div>
                     <h3 className="font-semibold text-lg text-gray-900">Current Plan: Plus</h3>
@@ -180,7 +180,7 @@ const Settings: React.FC = () => {
                   </div>
                   <span className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold">Active</span>
                 </div>
-                <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg hover:shadow-lg transition-all font-semibold">
+                <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-all font-semibold">
                   Upgrade to Premium
                 </button>
               </div>

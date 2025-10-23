@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, CheckCircle } from 'lucide-react';
+import { Hash, CheckCircle } from 'lucide-react';
 import { mockUser } from '../constants';
 import type { User } from '../types';
 
@@ -18,11 +18,11 @@ const WalletConnect: React.FC<WalletConnectProps> = ({ onConnect }) => {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4">
-            <Shield className="w-10 h-10 text-white" />
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-4">
+            <Hash className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">BioVault</h1>
           <p className="text-gray-600">Your health data, your control</p>
@@ -46,7 +46,7 @@ const WalletConnect: React.FC<WalletConnectProps> = ({ onConnect }) => {
         <button
           onClick={handleConnect}
           disabled={connecting}
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {connecting ? (
             <span className="flex items-center justify-center">

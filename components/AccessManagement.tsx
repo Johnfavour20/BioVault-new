@@ -51,7 +51,7 @@ const AccessManagement: React.FC = () => {
               <div key={request.id} className="border border-gray-200 rounded-xl p-4 sm:p-6 hover:border-blue-300 transition-colors">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-sky-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
                       {request.provider.split(' ').map(n => n[0]).join('')}
                     </div>
                     <div>

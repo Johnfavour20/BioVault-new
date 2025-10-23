@@ -25,7 +25,7 @@ const Documents: React.FC = () => {
         </div>
         <button
           onClick={() => setShowUploadModal(true)}
-          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center self-start sm:self-auto"
+          className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all flex items-center self-start sm:self-auto"
         >
           <Plus className="w-5 h-5 mr-2" />
           Upload Document
@@ -61,7 +61,7 @@ const Documents: React.FC = () => {
         {filteredDocs.map(doc => (
           <div key={doc.id} className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-all flex flex-col">
             <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                 <FileText className="w-6 h-6 text-blue-600" />
               </div>
               <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full flex items-center">
