@@ -27,18 +27,18 @@ const ToastMessage: React.FC<{ toast: Toast, onDismiss: (id: number) => void }> 
 
     return (
         <div 
-            className={`bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 w-full max-w-sm overflow-hidden pointer-events-auto transition-all duration-300 ease-in-out transform ${isExiting ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'}`}
+            className={`bg-[var(--card-background)] rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 w-full max-w-sm overflow-hidden pointer-events-auto transition-all duration-300 ease-in-out transform ${isExiting ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'}`}
         >
             <div className="p-4">
                 <div className="flex items-start">
                     <div className="flex-shrink-0">{icons[toast.type]}</div>
                     <div className="ml-3 w-0 flex-1 pt-0.5">
-                        <p className="text-sm font-medium text-gray-900">{toast.message}</p>
+                        <p className="text-sm font-medium text-[var(--text-primary)]">{toast.message}</p>
                     </div>
                     <div className="ml-4 flex-shrink-0 flex">
                         <button
                             onClick={() => onDismiss(toast.id)}
-                            className="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            className="bg-transparent rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-[var(--card-background)]"
                         >
                             <span className="sr-only">Close</span>
                             <X className="h-5 w-5" />

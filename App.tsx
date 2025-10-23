@@ -1,5 +1,6 @@
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
+import { ThemeProvider } from './context/ThemeContext';
 import WalletConnect from './components/WalletConnect';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -16,10 +17,11 @@ import DocumentViewModal from './components/modals/DocumentViewModal';
 import NotificationsPanel from './components/NotificationsPanel';
 import SplashScreen from './components/SplashScreen';
 import ToastContainer from './components/ToastContainer';
+import DashboardSkeleton from './components/skeletons/DashboardSkeleton';
 import type { User } from './types';
 
 const AppContent: React.FC = () => {
-  const { currentView, user, setUser, showUploadModal, showQRModal, showDocumentViewModal, showNotificationsPanel, isSidebarOpen, setIsSidebarOpen } = useApp();
+  const { currentView, user, setUser, showUploadModal, showQRModal, showDocumentViewModal, showNotificationsPanel, isSidebarOpen, setIsSidebarOpen, isLoading } = useApp();
   const [showSplash, setShowSplash] = React.useState(true);
 
   React.useEffect(() => {
@@ -46,12 +48,26 @@ const AppContent: React.FC = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)]">
+        <Navbar />
+        <div className="flex pt-16">
+          <Sidebar />
+          <main className="flex-1 p-4 sm:p-6 md:ml-64 transition-all duration-300">
+            <DashboardSkeleton />
+          </main>
+        </div>
+      </div>
+    );
+  }
+  
   if (!user) {
     return <WalletConnect onConnect={(connectedUser) => setUser(connectedUser)} />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)]">
       <ToastContainer />
       <Navbar />
       {showNotificationsPanel && <NotificationsPanel />}
@@ -73,8 +89,10 @@ const AppContent: React.FC = () => {
 
 export default function App() {
   return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
+    <ThemeProvider>
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
+    </ThemeProvider>
   );
 }

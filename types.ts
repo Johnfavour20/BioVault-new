@@ -102,7 +102,8 @@ export interface AppContextType {
   showNotificationsPanel: boolean;
   setShowNotificationsPanel: Dispatch<SetStateAction<boolean>>;
   addToast: (message: string, type: Toast['type']) => void;
-  // FIX: Added toasts array and removeToast function to the context type for the notification system.
   toasts: Toast[];
   removeToast: (id: number) => void;
+  isLoading: boolean;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 }

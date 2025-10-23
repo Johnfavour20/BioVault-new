@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Activity, FileText, Users, Shield, AlertTriangle, Settings, LogOut, LucideIcon, Sparkles } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 interface MenuItem {
   id: string;
@@ -34,7 +35,7 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <aside className={`fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 z-30 transform transition-transform duration-300 ease-in-out md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+    <aside className={`fixed inset-y-0 left-0 w-64 bg-[var(--card-background)] border-r border-[var(--border-color)] z-30 transform transition-transform duration-300 ease-in-out md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       <div className="flex flex-col h-full pt-16">
         <nav className="p-4 space-y-2 flex-grow overflow-y-auto">
           {menuItems.map(item => {
@@ -47,8 +48,8 @@ const Sidebar: React.FC = () => {
                 onClick={() => handleNavigate(item.id)}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all transform ${
                   isActive
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/30'
+                    : 'text-[var(--text-secondary)] hover:bg-[var(--muted-background)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -58,10 +59,14 @@ const Sidebar: React.FC = () => {
           })}
         </nav>
         
-        <div className="p-4 border-t border-gray-200">
+        <div className="border-t border-[var(--border-color)]">
+          <ThemeToggle />
+        </div>
+        
+        <div className="p-4 border-t border-[var(--border-color)]">
           <button 
             onClick={handleDisconnect}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-500/10 rounded-lg transition-colors"
           >
             <LogOut className="w-5 h-5" />
             <span className="font-medium">Disconnect</span>

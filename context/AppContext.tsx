@@ -29,6 +29,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showNotificationsPanel, setShowNotificationsPanel] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const removeToast = (id: number) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
@@ -37,17 +38,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const addToast = useCallback((message: string, type: Toast['type']) => {
     const id = Date.now();
     setToasts(prev => [...prev, { id, message, type }]);
-    // The ToastMessage component now handles its own dismissal timer to allow for exit animations.
   }, []);
-
 
   React.useEffect(() => {
      if (user) {
+        setIsLoading(false);
         return;
      }
     const timer = setTimeout(() => {
         setUser(mockUser);
-    }, 500);
+        setIsLoading(false);
+    }, 1500); // Increased to better showcase skeleton loader
     return () => clearTimeout(timer);
   }, [user]);
 
@@ -81,6 +82,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     addToast,
     toasts,
     removeToast,
+    isLoading,
+    setIsLoading,
   };
 
   return (

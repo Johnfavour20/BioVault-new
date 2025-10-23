@@ -48,10 +48,10 @@ const NotificationsPanel: React.FC = () => {
   };
 
   return (
-    <div ref={panelRef} className="fixed top-16 right-4 sm:right-6 w-full max-w-sm bg-white rounded-xl shadow-2xl border border-gray-200 z-40 overflow-hidden animate-fade-in-down">
-      <div className="p-4 border-b border-gray-200">
+    <div ref={panelRef} className="fixed top-16 right-4 sm:right-6 w-full max-w-sm bg-[var(--card-background)] rounded-xl shadow-2xl border border-[var(--border-color)] z-40 overflow-hidden animate-fade-in-down">
+      <div className="p-4 border-b border-[var(--border-color)]">
         <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">Notifications</h3>
+            <h3 className="font-semibold text-[var(--text-primary)]">Notifications</h3>
             {unreadCount > 0 && (
                 <button onClick={markAllAsRead} className="text-sm text-blue-600 hover:text-blue-700 font-medium">
                     Mark all as read
@@ -66,7 +66,7 @@ const NotificationsPanel: React.FC = () => {
             <div
               key={notif.id}
               onClick={() => handleNotificationClick(notif)}
-              className="flex items-start space-x-4 p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+              className="flex items-start space-x-4 p-4 hover:bg-[var(--muted-background)] cursor-pointer border-b border-[var(--border-color)]/50 last:border-b-0"
             >
               <div className="w-2 mt-2 flex-shrink-0">
                 {!notif.isRead && (
@@ -74,22 +74,22 @@ const NotificationsPanel: React.FC = () => {
                 )}
               </div>
               <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
-                notif.type === 'ACCESS_REQUEST' ? 'bg-blue-100' :
-                notif.type === 'ACCESS_EXPIRING' ? 'bg-orange-100' : 'bg-gray-100'
+                notif.type === 'ACCESS_REQUEST' ? 'bg-blue-500/10' :
+                notif.type === 'ACCESS_EXPIRING' ? 'bg-orange-500/10' : 'bg-gray-500/10'
               }`}>
                 <NotificationIcon type={notif.type} />
               </div>
               <div className="flex-1">
-                <p className={`text-sm ${!notif.isRead ? 'text-gray-800 font-semibold' : 'text-gray-600'}`}>{notif.message}</p>
+                <p className={`text-sm ${!notif.isRead ? 'text-[var(--text-primary)] font-semibold' : 'text-[var(--text-secondary)]'}`}>{notif.message}</p>
                 <p className="text-xs text-gray-500 mt-1">{formatDate(notif.timestamp)}</p>
               </div>
             </div>
           ))
         ) : (
           <div className="p-12 text-center">
-            <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h4 className="text-lg font-semibold text-gray-900">No Notifications</h4>
-            <p className="text-sm text-gray-600">You're all caught up!</p>
+            <Bell className="w-12 h-12 text-gray-400/50 mx-auto mb-4" />
+            <h4 className="text-lg font-semibold text-[var(--text-primary)]">No Notifications</h4>
+            <p className="text-sm text-[var(--text-secondary)]">You're all caught up!</p>
           </div>
         )}
       </div>

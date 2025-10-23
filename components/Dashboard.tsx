@@ -16,8 +16,8 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6 animate-fadeIn">
       <div>
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Welcome back, {user?.name.split(' ')[0]}! 👋</h2>
-        <p className="text-gray-600 mt-1">Here's what's happening with your health data</p>
+        <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">Welcome back, {user?.name.split(' ')[0]}! 👋</h2>
+        <p className="text-[var(--text-secondary)] mt-1">Here's what's happening with your health data</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -32,22 +32,22 @@ const Dashboard: React.FC = () => {
         
         <button
           onClick={() => setShowQRModal(true)}
-          className="bg-white border-2 border-gray-200 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all text-left text-gray-800"
+          className="bg-[var(--card-background)] border-2 border-[var(--border-color)] p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all text-left text-[var(--text-primary)]"
         >
-          <QrCode className="w-10 h-10 mb-3 text-blue-600" />
+          <QrCode className="w-10 h-10 mb-3 text-[var(--primary)]" />
           <h3 className="font-semibold text-lg mb-1">Show QR Code</h3>
-          <p className="text-gray-500 text-sm">For provider access</p>
+          <p className="text-[var(--text-secondary)] text-sm">For provider access</p>
         </button>
         
         <button
           onClick={() => setCurrentView('access')}
-          className="bg-white border-2 border-gray-200 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all text-left text-gray-800 relative"
+          className="bg-[var(--card-background)] border-2 border-[var(--border-color)] p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all text-left text-[var(--text-primary)] relative"
         >
           {accessRequests.length > 0 && <span className="absolute top-4 right-4 h-3 w-3 rounded-full bg-red-500 animate-ping"></span>}
           {accessRequests.length > 0 && <span className="absolute top-4 right-4 h-3 w-3 rounded-full bg-red-500"></span>}
-          <Bell className="w-10 h-10 mb-3 text-blue-600" />
+          <Bell className="w-10 h-10 mb-3 text-[var(--primary)]" />
           <h3 className="font-semibold text-lg mb-1">Access Requests</h3>
-          <p className="text-gray-500 text-sm">{accessRequests.length} pending</p>
+          <p className="text-[var(--text-secondary)] text-sm">{accessRequests.length} pending</p>
         </button>
       </div>
       
@@ -74,15 +74,15 @@ const Dashboard: React.FC = () => {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl">
+        <div className="bg-[var(--card-background)] rounded-2xl p-6 border-2 border-[var(--border-color)] shadow-xl">
           <h3 className="font-semibold text-lg mb-4">Health Profile</h3>
           <div className="space-y-3">
-            <div className="flex items-center justify-between py-2 border-b border-gray-100">
-              <span className="text-gray-600">Blood Type</span>
-              <span className="font-medium text-gray-900">{user?.bloodType}</span>
+            <div className="flex items-center justify-between py-2 border-b border-[var(--border-color)]/50">
+              <span className="text-[var(--text-secondary)]">Blood Type</span>
+              <span className="font-medium text-[var(--text-primary)]">{user?.bloodType}</span>
             </div>
-            <div className="flex items-start justify-between py-2 border-b border-gray-100">
-              <span className="text-gray-600">Allergies</span>
+            <div className="flex items-start justify-between py-2 border-b border-[var(--border-color)]/50">
+              <span className="text-[var(--text-secondary)]">Allergies</span>
               <div className="text-right">
                 {user?.allergies.map((allergy, idx) => (
                   <span key={idx} className="block text-sm font-medium text-red-600">{allergy}</span>
@@ -90,27 +90,27 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             <div className="flex items-start justify-between py-2">
-              <span className="text-gray-600">Conditions</span>
+              <span className="text-[var(--text-secondary)]">Conditions</span>
               <div className="text-right">
                 {user?.chronicConditions.map((condition, idx) => (
-                  <span key={idx} className="block text-sm font-medium text-gray-900">{condition}</span>
+                  <span key={idx} className="block text-sm font-medium text-[var(--text-primary)]">{condition}</span>
                 ))}
               </div>
             </div>
           </div>
         </div>
         
-        <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl">
+        <div className="bg-[var(--card-background)] rounded-2xl p-6 border-2 border-[var(--border-color)] shadow-xl">
           <h3 className="font-semibold text-lg mb-4">Current Medications</h3>
           <div className="space-y-3">
             {user?.medications.map((med, idx) => (
-              <div key={idx} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <div key={idx} className="flex items-center space-x-3 p-3 bg-[var(--muted-background)] rounded-lg">
+                <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
                   <Pill className="w-5 h-5 text-blue-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900">{med.name}</p>
-                  <p className="text-sm text-gray-600">{med.dosage} - {med.frequency}</p>
+                  <p className="font-medium text-[var(--text-primary)]">{med.name}</p>
+                  <p className="text-sm text-[var(--text-secondary)]">{med.dosage} - {med.frequency}</p>
                 </div>
               </div>
             ))}
@@ -118,7 +118,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       
-      <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-xl">
+      <div className="bg-[var(--card-background)] rounded-2xl p-6 border-2 border-[var(--border-color)] shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-lg">Recent Documents</h3>
           <button
@@ -130,18 +130,18 @@ const Dashboard: React.FC = () => {
         </div>
         <div className="space-y-3">
           {documents.slice(0, 3).map(doc => (
-            <div key={doc.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors">
+            <div key={doc.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 hover:bg-[var(--muted-background)] rounded-lg transition-colors">
               <div className="flex items-center space-x-3 mb-2 sm:mb-0">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
                   <FileText className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{doc.name}</p>
-                  <p className="text-sm text-gray-600">{doc.category} • {formatDate(doc.uploadedAt)}</p>
+                  <p className="font-medium text-[var(--text-primary)]">{doc.name}</p>
+                  <p className="text-sm text-[var(--text-secondary)]">{doc.category} • {formatDate(doc.uploadedAt)}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-2 self-end sm:self-center">
-                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full flex items-center">
+                <span className="text-xs bg-green-500/10 text-green-700 px-2 py-1 rounded-full flex items-center">
                   <Lock className="w-3 h-3 mr-1" /> Encrypted
                 </span>
               </div>
