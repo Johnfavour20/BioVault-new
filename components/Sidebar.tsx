@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Activity, FileText, Users, Shield, AlertTriangle, Settings, LogOut, LucideIcon, Sparkles } from 'lucide-react';
@@ -12,7 +13,7 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { id: 'dashboard', icon: Activity, label: 'Dashboard' },
   { id: 'ai_assistant', icon: Sparkles, label: 'AI Assistant' },
-  { id: 'documents', icon: FileText, label: 'My Documents' },
+  { id: 'health_records', icon: FileText, label: 'Health Records' },
   { id: 'access', icon: Users, label: 'Access Control' },
   { id: 'audit', icon: Shield, label: 'Audit Trail' },
   { id: 'emergency', icon: AlertTriangle, label: 'Emergency Access' },

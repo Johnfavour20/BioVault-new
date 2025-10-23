@@ -16,7 +16,7 @@ const Navbar: React.FC = () => {
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-[var(--primary)] rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">
                 <Hash className="w-6 h-6 text-[var(--primary-foreground)]" />
               </div>
               <div className="hidden sm:block">
@@ -44,6 +44,10 @@ const Navbar: React.FC = () => {
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium text-[var(--text-primary)]">{user?.name}</p>
                 <p className="text-xs text-[var(--text-secondary)]">{user?.id.slice(0, 10)}...</p>
+                <div className="flex items-center justify-end mt-1">
+                  <span className="h-2 w-2 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>
+                  <p className="text-xs text-green-600 font-medium">BlockDAG Connected</p>
+                </div>
               </div>
               <div className="w-10 h-10 bg-gradient-to-br from-sky-400 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
                 {user?.name.split(' ').map(n => n[0]).join('')}

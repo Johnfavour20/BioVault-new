@@ -1,12 +1,13 @@
+
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { formatDate } from '../../utils';
 import { XCircle, FileText, Clock, HardDrive, Tag } from 'lucide-react';
 
-const DocumentViewModal: React.FC = () => {
-  const { selectedDocument, setShowDocumentViewModal } = useApp();
+const HealthRecordViewModal: React.FC = () => {
+  const { selectedHealthRecord, setShowHealthRecordViewModal } = useApp();
   
-  if (!selectedDocument) return null;
+  if (!selectedHealthRecord) return null;
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-overlay">
@@ -17,12 +18,12 @@ const DocumentViewModal: React.FC = () => {
                 <FileText className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] break-all">{selectedDocument.name}</h2>
-                <p className="text-sm text-[var(--text-secondary)]">Secure Document Viewer</p>
+                <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] break-all">{selectedHealthRecord.name}</h2>
+                <p className="text-sm text-[var(--text-secondary)]">Secure Record Viewer</p>
               </div>
           </div>
           <button
-            onClick={() => setShowDocumentViewModal(false)}
+            onClick={() => setShowHealthRecordViewModal(false)}
             className="text-gray-400 hover:text-gray-600 transition-colors"
             aria-label="Close document viewer"
           >
@@ -35,7 +36,7 @@ const DocumentViewModal: React.FC = () => {
           <div className="flex-1 bg-[var(--muted-background)] border border-[var(--border-color)] rounded-xl flex items-center justify-center p-4">
             <div className="text-center text-gray-400">
               <FileText className="w-16 h-16 mx-auto mb-4" />
-              <h3 className="font-semibold text-lg text-[var(--text-secondary)]">Document Preview</h3>
+              <h3 className="font-semibold text-lg text-[var(--text-secondary)]">Record Preview</h3>
               <p className="text-sm">Content would be securely rendered here.</p>
             </div>
           </div>
@@ -48,28 +49,28 @@ const DocumentViewModal: React.FC = () => {
                     <Clock className="w-4 h-4 text-[var(--text-secondary)] mr-3 flex-shrink-0" />
                     <div>
                         <p className="font-medium text-[var(--text-primary)]">Uploaded</p>
-                        <p className="text-[var(--text-secondary)]">{formatDate(selectedDocument.uploadedAt)}</p>
+                        <p className="text-[var(--text-secondary)]">{formatDate(selectedHealthRecord.uploadedAt)}</p>
                     </div>
                 </div>
                 <div className="flex items-center">
                     <Tag className="w-4 h-4 text-[var(--text-secondary)] mr-3 flex-shrink-0" />
                     <div>
                         <p className="font-medium text-[var(--text-primary)]">Category</p>
-                        <p className="text-[var(--text-secondary)]">{selectedDocument.category}</p>
+                        <p className="text-[var(--text-secondary)]">{selectedHealthRecord.category}</p>
                     </div>
                 </div>
                  <div className="flex items-center">
                     <HardDrive className="w-4 h-4 text-[var(--text-secondary)] mr-3 flex-shrink-0" />
                     <div>
                         <p className="font-medium text-[var(--text-primary)]">File Size</p>
-                        <p className="text-[var(--text-secondary)]">{selectedDocument.size}</p>
+                        <p className="text-[var(--text-secondary)]">{selectedHealthRecord.size}</p>
                     </div>
                 </div>
                  <div className="flex items-start">
                     <FileText className="w-4 h-4 text-[var(--text-secondary)] mr-3 mt-1 flex-shrink-0" />
                     <div>
                         <p className="font-medium text-[var(--text-primary)]">IPFS Hash</p>
-                        <p className="text-[var(--text-secondary)] text-xs break-all font-mono">{selectedDocument.ipfsHash}</p>
+                        <p className="text-[var(--text-secondary)] text-xs break-all font-mono">{selectedHealthRecord.ipfsHash}</p>
                     </div>
                 </div>
             </div>
@@ -78,7 +79,7 @@ const DocumentViewModal: React.FC = () => {
 
         <div className="mt-6 flex-shrink-0 flex items-center justify-end">
             <button 
-                onClick={() => setShowDocumentViewModal(false)}
+                onClick={() => setShowHealthRecordViewModal(false)}
                 className="bg-[var(--primary)] text-[var(--primary-foreground)] px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all"
             >
                 Close Viewer
@@ -89,4 +90,4 @@ const DocumentViewModal: React.FC = () => {
   );
 };
 
-export default DocumentViewModal;
+export default HealthRecordViewModal;

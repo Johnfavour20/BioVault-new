@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { formatDate } from '../utils';
@@ -55,7 +56,7 @@ const AuditTrail: React.FC = () => {
             <select className="flex-1 w-full px-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]">
               <option>All Events</option>
               <option>Access Events</option>
-              <option>Document Events</option>
+              <option>Record Events</option>
               <option>Emergency Events</option>
             </select>
             <button className="bg-[var(--muted-background)] p-2 rounded-lg hover:bg-[var(--border-color)] transition-colors">
@@ -87,7 +88,7 @@ const AuditTrail: React.FC = () => {
                   <div className="flex-1 pt-1">
                     <div className="flex flex-col sm:flex-row items-start justify-between mb-1">
                       <div>
-                        <p className="font-medium text-[var(--text-primary)]">{entry.eventType.replace(/_/g, ' ')}</p>
+                        <p className="font-medium text-[var(--text-primary)]">{entry.eventType.replace(/_/g, ' ').replace('DOCUMENT', 'RECORD')}</p>
                         <p className="text-sm text-[var(--text-secondary)] mt-1">
                           <span className="font-medium">{entry.actor}</span> • {entry.resource}
                         </p>

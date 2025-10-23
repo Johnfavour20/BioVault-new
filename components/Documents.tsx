@@ -1,48 +1,49 @@
+
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { formatDate } from '../utils';
 import { Plus, Search, Filter, FileText, Lock, Eye, Download, Share2 } from 'lucide-react';
-import type { Document } from '../types';
+import type { HealthRecord } from '../types';
 
-const Documents: React.FC = () => {
-  const { documents, setShowUploadModal, setSelectedDocument, setShowDocumentViewModal, setAuditLog } = useApp();
+const HealthRecords: React.FC = () => {
+  const { healthRecords, setShowUploadModal, setSelectedHealthRecord, setShowHealthRecordViewModal, setAuditLog } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('All');
   
   const categories = ['All', 'Lab Results', 'Imaging', 'Visit Summary', 'Prescriptions', 'Blood Work', 'Primary Care', 'X-Rays'];
   
-  const filteredDocs = documents.filter(doc => {
-    const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === 'All' || doc.type === filterCategory || doc.category === filterCategory;
+  const filteredRecords = healthRecords.filter(rec => {
+    const matchesSearch = rec.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = filterCategory === 'All' || rec.type === filterCategory || rec.category === filterCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const handleViewDocument = (doc: Document) => {
-    setSelectedDocument(doc);
+  const handleViewRecord = (rec: HealthRecord) => {
+    setSelectedHealthRecord(rec);
     setAuditLog(prev => [{
         id: `audit_${Date.now()}`,
         eventType: 'DOCUMENT_VIEWED',
         actor: 'You',
-        resource: doc.name,
+        resource: rec.name,
         timestamp: Date.now(),
         location: 'Your Device'
     }, ...prev]);
-    setShowDocumentViewModal(true);
+    setShowHealthRecordViewModal(true);
   };
   
   return (
     <div className="space-y-6 animate-fadeIn">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">My Documents</h2>
-          <p className="text-[var(--text-secondary)] mt-1">{documents.length} medical records stored securely</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">My Health Records</h2>
+          <p className="text-[var(--text-secondary)] mt-1">{healthRecords.length} health records stored securely</p>
         </div>
         <button
           onClick={() => setShowUploadModal(true)}
           className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-3 rounded-xl font-bold flex items-center self-start sm:self-auto transition-all shadow-lg hover:shadow-xl"
         >
           <Plus className="w-5 h-5 mr-2" />
-          Upload Document
+          Add Health Record
         </button>
       </div>
       
@@ -51,7 +52,7 @@ const Documents: React.FC = () => {
           <Search className="w-5 h-5 text-[var(--text-secondary)] absolute left-3 top-1/2 transform -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search documents..."
+            placeholder="Search records..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--ring-color)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]"
@@ -72,8 +73,8 @@ const Documents: React.FC = () => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredDocs.map(doc => (
-          <div key={doc.id} className="bg-[var(--card-background)] rounded-2xl p-5 border border-[var(--card-border)] hover:border-[var(--accent)] shadow-md hover:shadow-xl transition-all flex flex-col transform hover:-translate-y-1">
+        {filteredRecords.map(rec => (
+          <div key={rec.id} className="bg-[var(--card-background)] rounded-2xl p-5 border border-[var(--card-border)] hover:border-[var(--accent)] shadow-md hover:shadow-xl transition-all flex flex-col transform hover:-translate-y-1">
             <div className="flex items-start justify-between mb-4">
               <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
                 <FileText className="w-6 h-6 text-blue-600" />
@@ -84,14 +85,14 @@ const Documents: React.FC = () => {
             </div>
             
             <div className="flex-grow">
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2 break-words">{doc.name}</h3>
-                <p className="text-sm text-[var(--text-secondary)] mb-4">{doc.category} • {doc.size}</p>
-                <p className="text-xs text-gray-500 mb-4">{formatDate(doc.uploadedAt)}</p>
+                <h3 className="font-semibold text-[var(--text-primary)] mb-2 break-words">{rec.name}</h3>
+                <p className="text-sm text-[var(--text-secondary)] mb-4">{rec.category} • {rec.size}</p>
+                <p className="text-xs text-gray-500 mb-4">{formatDate(rec.uploadedAt)}</p>
             </div>
             
             <div className="flex items-center space-x-2 mt-auto pt-4 border-t border-[var(--border-color)]">
               <button
-                onClick={() => handleViewDocument(doc)}
+                onClick={() => handleViewRecord(rec)}
                 className="flex-1 bg-blue-500/10 text-blue-600 py-2 rounded-lg hover:bg-blue-500/20 transition-colors text-sm font-medium flex items-center justify-center"
               >
                 <Eye className="w-4 h-4 mr-1" /> View
@@ -107,15 +108,15 @@ const Documents: React.FC = () => {
         ))}
       </div>
       
-      {filteredDocs.length === 0 && (
+      {filteredRecords.length === 0 && (
         <div className="bg-[var(--card-background)] rounded-2xl p-12 border-2 border-dashed border-[var(--border-color)] text-center shadow-lg">
           <FileText className="w-16 h-16 text-gray-400/50 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">No documents found</h3>
-          <p className="text-[var(--text-secondary)]">Try adjusting your search or filter criteria</p>
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">No health records found</h3>
+          <p className="text-[var(--text-secondary)]">Try adjusting your search or filter criteria, or add a new record.</p>
         </div>
       )}
     </div>
   );
 };
 
-export default Documents;
+export default HealthRecords;

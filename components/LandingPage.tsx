@@ -12,7 +12,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onConnectRequest }) => {
       <header className="fixed top-0 left-0 right-0 z-10 bg-[var(--background)]/80 backdrop-blur-sm border-b border-[var(--border-color)]">
         <div className="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-[var(--primary)] rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">
               <Hash className="w-6 h-6 text-[var(--primary-foreground)]" />
             </div>
             <h1 className="text-xl font-bold text-[var(--text-primary)]">BioVault</h1>
@@ -88,7 +88,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onConnectRequest }) => {
       {/* Footer */}
       <footer className="bg-[var(--card-background)] border-t border-[var(--border-color)] py-8">
         <div className="container mx-auto px-4 sm:px-6 text-center text-[var(--text-secondary)] text-sm">
-          <p>&copy; {new Date().getFullYear()} BioVault. All Rights Reserved.</p>
+          <p>&copy; {new Date().getFullYear()} BioVault. All rights reserved Team Echo</p>
           <div className="mt-2 space-x-4">
             <a href="#" className="hover:text-[var(--text-primary)]">Terms of Service</a>
             <span>•</span>

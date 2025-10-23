@@ -1,10 +1,11 @@
+
 import React, { useState, DragEvent, ChangeEvent } from 'react';
 import { useApp } from '../../context/AppContext';
 import { XCircle, Upload, FileText, Lock } from 'lucide-react';
-import type { Document } from '../../types';
+import type { HealthRecord } from '../../types';
 
 const UploadModal: React.FC = () => {
-  const { setShowUploadModal, setDocuments, addToast } = useApp();
+  const { setShowUploadModal, setHealthRecords, addToast } = useApp();
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -40,7 +41,7 @@ const UploadModal: React.FC = () => {
     if (!selectedFile) return;
     setUploading(true);
     setTimeout(() => {
-      const newDoc: Document = {
+      const newRecord: HealthRecord = {
         id: `doc_${Date.now()}`,
         name: selectedFile.name,
         type: category,
@@ -50,10 +51,10 @@ const UploadModal: React.FC = () => {
         ipfsHash: `QmNew${Math.random().toString(36).substr(2, 9)}`,
         encrypted: true
       };
-      setDocuments(prev => [newDoc, ...prev]);
+      setHealthRecords(prev => [newRecord, ...prev]);
       setUploading(false);
       setShowUploadModal(false);
-      addToast('Document uploaded successfully!', 'success');
+      addToast('Health record added successfully!', 'success');
     }, 2000);
   };
   
@@ -61,7 +62,7 @@ const UploadModal: React.FC = () => {
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-overlay">
       <div className="bg-[var(--card-background)] rounded-2xl max-w-2xl w-full p-6 sm:p-8 modal-content">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">Upload Medical Document</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">Add a Health Record</h2>
           <button
             onClick={() => setShowUploadModal(false)}
             className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -72,7 +73,7 @@ const UploadModal: React.FC = () => {
         
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Document Category</label>
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Record Category</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
@@ -126,7 +127,7 @@ const UploadModal: React.FC = () => {
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                   Encrypting & Uploading...
                 </span>
-              ) : ( 'Upload Document' )}
+              ) : ( 'Add Health Record' )}
             </button>
           </div>
         </div>

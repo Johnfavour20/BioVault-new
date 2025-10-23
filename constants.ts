@@ -1,9 +1,10 @@
-import type { User, Document, AccessRequest, ActiveAccess, AuditLog, Notification } from './types';
+
+import type { User, HealthRecord, AccessRequest, ActiveAccess, AuditLog, Notification } from './types';
 
 export const mockUser: User = {
   id: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
-  name: 'Sarah Johnson',
-  email: 'sarah.johnson@email.com',
+  name: 'Johnfavour',
+  email: 'johnfavour@email.com',
   dateOfBirth: '1985-06-15',
   bloodType: 'B+',
   allergies: ['Penicillin', 'Latex', 'Shellfish'],
@@ -15,7 +16,7 @@ export const mockUser: User = {
   tier: 'Plus'
 };
 
-export const mockDocuments: Document[] = [
+export const mockHealthRecords: HealthRecord[] = [
   {
     id: 'doc_001',
     name: 'Blood Test Results - Oct 2025',

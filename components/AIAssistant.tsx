@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { GoogleGenAI } from "@google/genai";
@@ -16,7 +17,7 @@ const suggestedPrompts = [
 ];
 
 const AIAssistant: React.FC = () => {
-  const { user, documents } = useApp();
+  const { user, healthRecords } = useApp();
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
@@ -34,7 +35,7 @@ const AIAssistant: React.FC = () => {
   useEffect(scrollToBottom, [messages, isLoading]);
 
   const constructPrompt = (question: string) => {
-    const documentList = documents.map(doc => `- ${doc.name} (${doc.type})`).join('\n');
+    const recordList = healthRecords.map(doc => `- ${doc.name} (${doc.type})`).join('\n');
     const allergies = user?.allergies.join(', ') || 'None';
     const conditions = user?.chronicConditions.join(', ') || 'None';
     const medications = user?.medications.map(m => `${m.name} (${m.dosage}, ${m.frequency})`).join(', ') || 'None';
@@ -48,8 +49,8 @@ User Data:
 - Allergies: ${allergies}
 - Chronic Conditions: ${conditions}
 - Medications: ${medications}
-- Documents on file:
-${documentList}
+- Health Records on file:
+${recordList}
 
 User Question: ${question}`;
   };
@@ -159,7 +160,7 @@ User Question: ${question}`;
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about your medications, allergies..."
+              placeholder="Ask about your medications, allergies, records..."
               className="w-full pl-4 pr-12 py-3 border border-[var(--border-color)] rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-shadow bg-[var(--background)] text-[var(--text-primary)]"
               disabled={isLoading}
               aria-label="Ask the AI assistant a question"

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -6,7 +7,7 @@ import WalletConnectModal from './components/modals/WalletConnectModal';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
-import Documents from './components/Documents';
+import HealthRecords from './components/Documents';
 import AccessManagement from './components/AccessManagement';
 import AuditTrail from './components/AuditTrail';
 import EmergencyAccess from './components/EmergencyAccess';
@@ -14,7 +15,7 @@ import Settings from './components/Settings';
 import AIAssistant from './components/AIAssistant';
 import UploadModal from './components/modals/UploadModal';
 import QRCodeModal from './components/modals/QRCodeModal';
-import DocumentViewModal from './components/modals/DocumentViewModal';
+import HealthRecordViewModal from './components/modals/DocumentViewModal';
 import NotificationsPanel from './components/NotificationsPanel';
 import SplashScreen from './components/SplashScreen';
 import ToastContainer from './components/ToastContainer';
@@ -22,7 +23,7 @@ import DashboardSkeleton from './components/skeletons/DashboardSkeleton';
 import type { User } from './types';
 
 const AppContent: React.FC = () => {
-  const { currentView, user, setUser, showUploadModal, showQRModal, showDocumentViewModal, showNotificationsPanel, isSidebarOpen, setIsSidebarOpen, isLoading, showConnectModal, setShowConnectModal } = useApp();
+  const { currentView, user, setUser, showUploadModal, showQRModal, showHealthRecordViewModal, showNotificationsPanel, isSidebarOpen, setIsSidebarOpen, isLoading, showConnectModal, setShowConnectModal } = useApp();
   const [showSplash, setShowSplash] = React.useState(true);
 
   React.useEffect(() => {
@@ -40,7 +41,7 @@ const AppContent: React.FC = () => {
     switch (currentView) {
       case 'dashboard': return <Dashboard />;
       case 'ai_assistant': return <AIAssistant />;
-      case 'documents': return <Documents />;
+      case 'health_records': return <HealthRecords />;
       case 'access': return <AccessManagement />;
       case 'audit': return <AuditTrail />;
       case 'emergency': return <EmergencyAccess />;
@@ -96,7 +97,7 @@ const AppContent: React.FC = () => {
       
       {showUploadModal && <UploadModal />}
       {showQRModal && <QRCodeModal />}
-      {showDocumentViewModal && <DocumentViewModal />}
+      {showHealthRecordViewModal && <HealthRecordViewModal />}
     </div>
   );
 };

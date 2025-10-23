@@ -1,3 +1,4 @@
+
 import type { Dispatch, SetStateAction } from 'react';
 
 export interface Medication {
@@ -18,7 +19,7 @@ export interface User {
   tier: string;
 }
 
-export interface Document {
+export interface HealthRecord {
   id:string;
   name: string;
   type: string;
@@ -79,8 +80,8 @@ export interface AppContextType {
   setCurrentView: Dispatch<SetStateAction<string>>;
   user: User | null;
   setUser: Dispatch<SetStateAction<User | null>>;
-  documents: Document[];
-  setDocuments: Dispatch<SetStateAction<Document[]>>;
+  healthRecords: HealthRecord[];
+  setHealthRecords: Dispatch<SetStateAction<HealthRecord[]>>;
   accessRequests: AccessRequest[];
   setAccessRequests: Dispatch<SetStateAction<AccessRequest[]>>;
   activeAccess: ActiveAccess[];
@@ -89,14 +90,14 @@ export interface AppContextType {
   setAuditLog: Dispatch<SetStateAction<AuditLog[]>>;
   notifications: Notification[];
   setNotifications: Dispatch<SetStateAction<Notification[]>>;
-  selectedDocument: Document | null;
-  setSelectedDocument: Dispatch<SetStateAction<Document | null>>;
+  selectedHealthRecord: HealthRecord | null;
+  setSelectedHealthRecord: Dispatch<SetStateAction<HealthRecord | null>>;
   showUploadModal: boolean;
   setShowUploadModal: Dispatch<SetStateAction<boolean>>;
   showQRModal: boolean;
   setShowQRModal: Dispatch<SetStateAction<boolean>>;
-  showDocumentViewModal: boolean;
-  setShowDocumentViewModal: Dispatch<SetStateAction<boolean>>;
+  showHealthRecordViewModal: boolean;
+  setShowHealthRecordViewModal: Dispatch<SetStateAction<boolean>>;
   isSidebarOpen: boolean;
   setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
   showNotificationsPanel: boolean;

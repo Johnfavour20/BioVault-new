@@ -1,13 +1,14 @@
+
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { formatDate } from '../utils';
 import { Upload, QrCode, Bell, FileText, Users, Clock, Activity, Pill, ChevronRight, Lock } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
-  const { user, documents, accessRequests, setCurrentView, setShowUploadModal, setShowQRModal } = useApp();
+  const { user, healthRecords, accessRequests, setCurrentView, setShowUploadModal, setShowQRModal } = useApp();
   
   const stats = [
-    { label: 'Total Documents', value: documents.length, icon: FileText, color: 'blue' },
+    { label: 'Total Health Records', value: healthRecords.length, icon: FileText, color: 'blue' },
     { label: 'Active Access', value: 1, icon: Users, color: 'green' },
     { label: 'Pending Requests', value: accessRequests.length, icon: Clock, color: 'yellow' },
     { label: 'Total Access Events', value: 47, icon: Activity, color: 'sky' }
@@ -26,7 +27,7 @@ const Dashboard: React.FC = () => {
           className="bg-gradient-to-br from-blue-500 to-purple-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition-all text-left"
         >
           <Upload className="w-10 h-10 mb-3" />
-          <h3 className="font-semibold text-lg mb-1">Upload Document</h3>
+          <h3 className="font-semibold text-lg mb-1">Add Health Record</h3>
           <p className="text-blue-100 text-sm">Add new medical records</p>
         </button>
         
@@ -120,16 +121,16 @@ const Dashboard: React.FC = () => {
       
       <div className="bg-[var(--card-background)] rounded-2xl p-6 border-2 border-[var(--border-color)] shadow-xl">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-lg">Recent Documents</h3>
+          <h3 className="font-semibold text-lg">Recent Health Records</h3>
           <button
-            onClick={() => setCurrentView('documents')}
+            onClick={() => setCurrentView('health_records')}
             className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center"
           >
             View All <ChevronRight className="w-4 h-4 ml-1" />
           </button>
         </div>
         <div className="space-y-3">
-          {documents.slice(0, 3).map(doc => (
+          {healthRecords.slice(0, 3).map(doc => (
             <div key={doc.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 hover:bg-[var(--muted-background)] rounded-lg transition-colors">
               <div className="flex items-center space-x-3 mb-2 sm:mb-0">
                 <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center flex-shrink-0">

@@ -1,6 +1,7 @@
+
 import React, { useState, createContext, useContext, ReactNode, useCallback } from 'react';
-import type { AppContextType, User, Document, AccessRequest, ActiveAccess, AuditLog, Notification, Toast } from '../types';
-import { mockUser, mockDocuments, mockAccessRequests, mockActiveAccess, mockAuditLog, mockNotifications } from '../constants';
+import type { AppContextType, User, HealthRecord, AccessRequest, ActiveAccess, AuditLog, Notification, Toast } from '../types';
+import { mockUser, mockHealthRecords, mockAccessRequests, mockActiveAccess, mockAuditLog, mockNotifications } from '../constants';
 
 const AppContext = createContext<AppContextType | null>(null);
 
@@ -17,15 +18,15 @@ interface AppProviderProps {
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [user, setUser] = useState<User | null>(null);
-  const [documents, setDocuments] = useState<Document[]>(mockDocuments);
+  const [healthRecords, setHealthRecords] = useState<HealthRecord[]>(mockHealthRecords);
   const [accessRequests, setAccessRequests] = useState<AccessRequest[]>(mockAccessRequests);
   const [activeAccess, setActiveAccess] = useState<ActiveAccess[]>(mockActiveAccess);
   const [auditLog, setAuditLog] = useState<AuditLog[]>(mockAuditLog);
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [selectedHealthRecord, setSelectedHealthRecord] = useState<HealthRecord | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
-  const [showDocumentViewModal, setShowDocumentViewModal] = useState(false);
+  const [showHealthRecordViewModal, setShowHealthRecordViewModal] = useState(false);
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showNotificationsPanel, setShowNotificationsPanel] = useState(false);
@@ -58,8 +59,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setCurrentView,
     user,
     setUser,
-    documents,
-    setDocuments,
+    healthRecords,
+    setHealthRecords,
     accessRequests,
     setAccessRequests,
     activeAccess,
@@ -68,14 +69,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setAuditLog,
     notifications,
     setNotifications,
-    selectedDocument,
-    setSelectedDocument,
+    selectedHealthRecord,
+    setSelectedHealthRecord,
     showUploadModal,
     setShowUploadModal,
     showQRModal,
     setShowQRModal,
-    showDocumentViewModal,
-    setShowDocumentViewModal,
+    showHealthRecordViewModal,
+    setShowHealthRecordViewModal,
     isSidebarOpen,
     setIsSidebarOpen,
     showNotificationsPanel,

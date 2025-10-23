@@ -1,4 +1,5 @@
 
+
 # BioVault Backend Development Guide
 
 ## 1. Introduction
@@ -21,19 +22,19 @@ This document outlines the architecture, data models, and API endpoints required
 Understanding these concepts is crucial for building the backend correctly.
 
 ### Decentralized Storage (IPFS)
-Medical documents are **not** stored on our servers. They are encrypted on the client-side and then uploaded to the [InterPlanetary File System (IPFS)](https://ipfs.tech/). The backend's role is to store the metadata associated with these documents, including the IPFS hash (CID) which acts as a pointer to the file.
+Medical health records are **not** stored on our servers. They are encrypted on the client-side and then uploaded to the [InterPlanetary File System (IPFS)](https://ipfs.tech/). The backend's role is to store the metadata associated with these records, including the IPFS hash (CID) which acts as a pointer to the file.
 
 ### Blockchain for Access Control & Auditing
 The logic for granting, revoking, and auditing access to medical records is managed by a **smart contract** on a blockchain (e.g., Ethereum, Polygon). The backend's responsibility is to interact with this smart contract to trigger state changes (e.g., approving a request) and to query the blockchain for audit trail data.
 
 ### End-to-End Encryption (E2EE)
-1.  When a user uploads a document, the frontend generates a random symmetric key (e.g., AES-256).
-2.  The document is encrypted with this symmetric key.
-3.  The encrypted document is uploaded to IPFS.
+1.  When a user uploads a health record, the frontend generates a random symmetric key (e.g., AES-256).
+2.  The health record is encrypted with this symmetric key.
+3.  The encrypted health record is uploaded to IPFS.
 4.  The symmetric key is then encrypted with the user's public key (derived from their wallet).
 5.  The backend stores the IPFS hash and the **encrypted** symmetric key.
 
-This ensures that only the user, using their private key, can decrypt the symmetric key and subsequently the document. The backend cannot read the document's contents.
+This ensures that only the user, using their private key, can decrypt the symmetric key and subsequently the health record. The backend cannot read the record's contents.
 
 ### Wallet-Based Identity
 User accounts are tied directly to their blockchain wallet address (e.g., `0x742d...`). Authentication is performed by asking the user to sign a unique, server-generated message with their wallet. This proves ownership of the address without needing traditional passwords.
@@ -47,7 +48,7 @@ The backend consists of three main components that your server will interact wit
 1.  **API Server (Node.js/Express)**: The core of the backend. It handles all client requests, manages user data, and orchestrates interactions with the database, IPFS, and the blockchain.
 2.  **Database (PostgreSQL / MongoDB)**: Stores non-sensitive data that requires fast querying:
     - User profiles
-    - Encrypted document metadata
+    - Encrypted health record metadata
     - Access requests and active grants (can be cached from the blockchain for performance)
 3.  **Service Integrations**:
     - **IPFS Gateway**: A service like [Pinata](https://www.pinata.cloud/) or a self-hosted IPFS node to pin (persist) user files.
@@ -74,12 +75,12 @@ Stores user profile information.
 | `medications`      | `Array`   | `[{ name, dosage, frequency }]`           |
 | `tier`             | `String`  | User's subscription tier, e.g., "Plus".   |
 
-#### `documents`
-Stores metadata for user-uploaded documents.
+#### `health_records`
+Stores metadata for user-uploaded health records.
 
 | Field                 | Type     | Description                                                          |
 | --------------------- | -------- | -------------------------------------------------------------------- |
-| `id`                  | `UUID`   | **Primary Key**. Unique document identifier.                         |
+| `id`                  | `UUID`   | **Primary Key**. Unique record identifier.                         |
 | `ownerWalletId`       | `String` | **Foreign Key** to `users.walletId`.                                 |
 | `name`                | `String` | The original filename.                                               |
 | `category`            | `String` | e.g., "Lab Results", "Imaging".                                      |
@@ -98,7 +99,7 @@ Stores pending requests from providers to access a user's data.
 | `patientWalletId`   | `String` | Wallet ID of the patient.                        |
 | `reason`            | `String` | Reason for the access request.                   |
 | `requestedDuration` | `String` | e.g., "48 hours".                                |
-| `dataCategories`    | `Array`  | `[String]` of document categories requested.     |
+| `dataCategories`    | `Array`  | `[String]` of record categories requested.     |
 | `timestamp`         | `Date`   | When the request was made.                       |
 | `status`            | `String` | `pending`, `approved`, `denied`.                 |
 
@@ -133,18 +134,18 @@ All endpoints should be prefixed with `/api`. Secure endpoints must be protected
    - **Body**: `{ name: "...", email: "..." }` (and other user fields)
    - **Response**: `{ user: { ...updatedUserObject } }`
 
-### Documents
+### Health Records
 
-**1. `GET /documents`**
+**1. `GET /health-records`**
    - **Protected**: Yes
-   - Returns a list of all document metadata for the authenticated user.
-   - **Response**: `{ documents: [ ...documentMetadataObjects ] }`
+   - Returns a list of all health record metadata for the authenticated user.
+   - **Response**: `{ healthRecords: [ ...recordMetadataObjects ] }`
 
-**2. `POST /documents`**
+**2. `POST /health-records`**
    - **Protected**: Yes
-   - Saves the metadata of a new, successfully uploaded document. The file is uploaded client-side to IPFS first.
+   - Saves the metadata of a new, successfully uploaded health record. The file is uploaded client-side to IPFS first.
    - **Body**: `{ name, category, size, ipfsHash, encryptedSymmetricKey }`
-   - **Response**: `201 Created` with `{ document: { ...newDocumentMetadata } }`
+   - **Response**: `201 Created` with `{ healthRecord: { ...newRecordMetadata } }`
 
 ### Access Management
 
