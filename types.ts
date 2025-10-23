@@ -19,7 +19,7 @@ export interface User {
 }
 
 export interface Document {
-  id: string;
+  id:string;
   name: string;
   type: string;
   category: string;
@@ -106,4 +106,6 @@ export interface AppContextType {
   removeToast: (id: number) => void;
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
+  showConnectModal: boolean;
+  setShowConnectModal: Dispatch<SetStateAction<boolean>>;
 }

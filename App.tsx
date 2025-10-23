@@ -1,7 +1,8 @@
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
-import WalletConnect from './components/WalletConnect';
+import LandingPage from './components/LandingPage';
+import WalletConnectModal from './components/modals/WalletConnectModal';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -21,13 +22,13 @@ import DashboardSkeleton from './components/skeletons/DashboardSkeleton';
 import type { User } from './types';
 
 const AppContent: React.FC = () => {
-  const { currentView, user, setUser, showUploadModal, showQRModal, showDocumentViewModal, showNotificationsPanel, isSidebarOpen, setIsSidebarOpen, isLoading } = useApp();
+  const { currentView, user, setUser, showUploadModal, showQRModal, showDocumentViewModal, showNotificationsPanel, isSidebarOpen, setIsSidebarOpen, isLoading, showConnectModal, setShowConnectModal } = useApp();
   const [showSplash, setShowSplash] = React.useState(true);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 2500); // Show splash for 2.5 seconds
+    }, 2500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -48,7 +49,8 @@ const AppContent: React.FC = () => {
     }
   };
 
-  if (isLoading) {
+  // Show skeleton loader only when transitioning to logged-in state
+  if (isLoading && !user) {
     return (
       <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)]">
         <Navbar />
@@ -63,7 +65,20 @@ const AppContent: React.FC = () => {
   }
   
   if (!user) {
-    return <WalletConnect onConnect={(connectedUser) => setUser(connectedUser)} />;
+    return (
+      <>
+        <LandingPage onConnectRequest={() => setShowConnectModal(true)} />
+        {showConnectModal && (
+          <WalletConnectModal
+            onConnect={(connectedUser) => {
+              setUser(connectedUser);
+              setShowConnectModal(false);
+            }}
+            onClose={() => setShowConnectModal(false)}
+          />
+        )}
+      </>
+    );
   }
 
   return (
@@ -74,7 +89,6 @@ const AppContent: React.FC = () => {
       <div className="flex pt-16">
         <Sidebar />
         <main className="flex-1 p-4 sm:p-6 md:ml-64 transition-all duration-300">
-          {/* Overlay for mobile sidebar */}
           {isSidebarOpen && <div onClick={() => setIsSidebarOpen(false)} className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"></div>}
           {renderView()}
         </main>

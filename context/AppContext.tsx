@@ -26,6 +26,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
   const [showDocumentViewModal, setShowDocumentViewModal] = useState(false);
+  const [showConnectModal, setShowConnectModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showNotificationsPanel, setShowNotificationsPanel] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -45,10 +46,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         setIsLoading(false);
         return;
      }
-    const timer = setTimeout(() => {
-        setUser(mockUser);
+     // For initial load without a user, stop loading to show landing page.
+     const timer = setTimeout(() => {
         setIsLoading(false);
-    }, 1500); // Increased to better showcase skeleton loader
+     }, 1500); 
     return () => clearTimeout(timer);
   }, [user]);
 
@@ -84,6 +85,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     removeToast,
     isLoading,
     setIsLoading,
+    showConnectModal,
+    setShowConnectModal,
   };
 
   return (
