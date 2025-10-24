@@ -1,5 +1,11 @@
 
-import type { Dispatch, SetStateAction } from 'react';
+import type { Dispatch, SetStateAction, ElementType } from 'react';
+
+export interface MenuItem {
+  id: string;
+  icon: ElementType;
+  labelKey: string;
+}
 
 export interface Medication {
   name: string;

@@ -1,9 +1,13 @@
+
 import React from 'react';
 import { useApp } from '../context/AppContext';
+import { useLocale } from '../context/LocaleContext';
 import { Hash, Bell, Menu } from 'lucide-react';
+import { mainMenuItems } from '../constants';
 
 const Navbar: React.FC = () => {
-  const { user, notifications, setShowNotificationsPanel, setIsSidebarOpen } = useApp();
+  const { user, notifications, setShowNotificationsPanel, setIsSidebarOpen, currentView, setCurrentView } = useApp();
+  const { t } = useLocale();
   
   const unreadCount = notifications.filter(n => !n.isRead).length;
   
@@ -11,7 +15,7 @@ const Navbar: React.FC = () => {
     <nav className="bg-[var(--card-background)] border-b border-[var(--border-color)] fixed w-full z-20 top-0">
       <div className="px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center">
             <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 text-[var(--text-secondary)] md:hidden">
               <Menu className="w-6 h-6" />
             </button>
@@ -24,6 +28,26 @@ const Navbar: React.FC = () => {
                 <p className="text-xs text-[var(--text-secondary)]">{user?.tier} Plan</p>
               </div>
             </div>
+
+            <div className="hidden md:flex items-center space-x-2 ml-8">
+              {mainMenuItems.map(item => {
+                const isActive = currentView === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setCurrentView(item.id)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'bg-[var(--muted-background)] text-[var(--text-primary)]'
+                        : 'text-[var(--text-secondary)] hover:bg-[var(--muted-background)] hover:text-[var(--text-primary)]'
+                    }`}
+                  >
+                    {t(item.labelKey)}
+                  </button>
+                );
+              })}
+            </div>
+
           </div>
           
           <div className="flex items-center space-x-2 sm:space-x-4">

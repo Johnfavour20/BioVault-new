@@ -1,5 +1,17 @@
 
-import type { User, HealthRecord, AccessRequest, ActiveAccess, AuditLog, Notification } from './types';
+import type { User, HealthRecord, AccessRequest, ActiveAccess, AuditLog, Notification, MenuItem } from './types';
+import { Activity, FileText, Users, Shield, AlertTriangle, Settings, Sparkles } from 'lucide-react';
+
+export const mainMenuItems: MenuItem[] = [
+    { id: 'dashboard', icon: Activity, labelKey: 'dashboard' },
+    { id: 'aiAssistant', icon: Sparkles, labelKey: 'aiAssistant' },
+    { id: 'healthRecords', icon: FileText, labelKey: 'healthRecords' },
+    { id: 'access', icon: Users, labelKey: 'accessControl' },
+    { id: 'audit', icon: Shield, labelKey: 'auditTrail' },
+    { id: 'emergency', icon: AlertTriangle, labelKey: 'emergencyAccess' },
+];
+
+export const settingsMenuItem: MenuItem = { id: 'settings', icon: Settings, labelKey: 'settings' };
 
 export const mockUser: User = {
   id: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',

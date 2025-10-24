@@ -2,28 +2,16 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { useLocale } from '../context/LocaleContext';
-import { Activity, FileText, Users, Shield, AlertTriangle, Settings, LogOut, LucideIcon, Sparkles } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
-
-interface MenuItem {
-  id: string;
-  icon: LucideIcon;
-  labelKey: string;
-}
+import { mainMenuItems, settingsMenuItem } from '../constants';
+import type { MenuItem } from '../types';
 
 const Sidebar: React.FC = () => {
   const { currentView, setCurrentView, isSidebarOpen, setIsSidebarOpen, setUser, addToast } = useApp();
   const { t } = useLocale();
 
-  const menuItems: MenuItem[] = [
-    { id: 'dashboard', icon: Activity, labelKey: 'dashboard' },
-    { id: 'aiAssistant', icon: Sparkles, labelKey: 'aiAssistant' },
-    { id: 'healthRecords', icon: FileText, labelKey: 'healthRecords' },
-    { id: 'access', icon: Users, labelKey: 'accessControl' },
-    { id: 'audit', icon: Shield, labelKey: 'auditTrail' },
-    { id: 'emergency', icon: AlertTriangle, labelKey: 'emergencyAccess' },
-    { id: 'settings', icon: Settings, labelKey: 'settings' }
-  ];
+  const menuItems: MenuItem[] = [...mainMenuItems, settingsMenuItem];
 
   const handleNavigate = (viewId: string) => {
     setCurrentView(viewId);

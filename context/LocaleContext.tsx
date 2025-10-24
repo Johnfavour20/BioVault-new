@@ -1,12 +1,7 @@
 import React, { createContext, useState, useEffect, ReactNode, useCallback, useContext } from 'react';
 
-const locales = {
-  en: () => import('../locales/en.json'),
-  es: () => import('../locales/es.json'),
-  fr: () => import('../locales/fr.json'),
-};
-
-export type Language = keyof typeof locales;
+const availableLanguages = ['en', 'es', 'fr'];
+export type Language = 'en' | 'es' | 'fr';
 
 type Translations = { [key: string]: string | any };
 
@@ -31,7 +26,7 @@ interface LocaleProviderProps {
 export const LocaleProvider: React.FC<LocaleProviderProps> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     const storedLang = localStorage.getItem('biovault-lang');
-    if (storedLang && locales[storedLang as Language]) {
+    if (storedLang && availableLanguages.includes(storedLang)) {
       return storedLang as Language;
     }
     return 'en';
@@ -39,9 +34,17 @@ export const LocaleProvider: React.FC<LocaleProviderProps> = ({ children }) => {
   const [translations, setTranslations] = useState<Translations>({});
 
   useEffect(() => {
-    locales[language]().then(module => {
-      setTranslations(module.default);
-    }).catch(console.error);
+    fetch(`/locales/${language}.json`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Could not fetch locale file: ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        setTranslations(data);
+      })
+      .catch(error => console.error('Failed to load translations:', error));
   }, [language]);
 
   const setLanguage = (lang: Language) => {
