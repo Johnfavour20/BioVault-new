@@ -3,6 +3,7 @@ import type { User, HealthRecord, AccessRequest, ActiveAccess, AuditLog, Notific
 
 export const mockUser: User = {
   id: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+  emergencyId: 'usr_johnfavour_12345',
   name: 'Johnfavour',
   email: 'johnfavour@email.com',
   dateOfBirth: '1985-06-15',
@@ -13,8 +14,22 @@ export const mockUser: User = {
     { name: 'Metformin', dosage: '1000mg', frequency: '2x daily' },
     { name: 'Lisinopril', dosage: '10mg', frequency: '1x daily' }
   ],
+  emergencyContacts: [
+    { name: 'Jane Doe', relationship: 'Spouse', phone: '555-123-4567' },
+    { name: 'Dr. Emily Thompson', relationship: 'Primary Care Physician', phone: '555-987-6543' }
+  ],
   tier: 'Plus'
 };
+
+export const initialEmergencyPackConfig = {
+  bloodType: true,
+  allergies: true,
+  medications: true,
+  conditions: true,
+  emergencyContacts: true,
+  recentSurgeries: false
+};
+
 
 export const mockHealthRecords: HealthRecord[] = [
   {

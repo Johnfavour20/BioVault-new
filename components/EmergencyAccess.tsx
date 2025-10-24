@@ -1,31 +1,23 @@
+
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { AlertTriangle, QrCode, Shield, CheckCircle, XCircle } from 'lucide-react';
-
-const initialEmergencyPack = {
-  bloodType: true,
-  allergies: true,
-  medications: true,
-  conditions: true,
-  emergencyContacts: true,
-  recentSurgeries: false
-};
+import { AlertTriangle, Shield, CheckCircle, XCircle } from 'lucide-react';
+import { initialEmergencyPackConfig } from '../constants';
 
 const EmergencyAccess: React.FC = () => {
   const { user, setShowQRModal, addToast } = useApp();
-  const [emergencyPack, setEmergencyPack] = useState(initialEmergencyPack);
+  const [emergencyPack, setEmergencyPack] = useState(initialEmergencyPackConfig);
   const [hasChanges, setHasChanges] = useState(false);
 
+  const emergencyUrl = user ? `${window.location.origin}/emergency/${user.emergencyId}` : '';
+
   useEffect(() => {
-    const changes = JSON.stringify(emergencyPack) !== JSON.stringify(initialEmergencyPack);
+    const changes = JSON.stringify(emergencyPack) !== JSON.stringify(initialEmergencyPackConfig);
     setHasChanges(changes);
   }, [emergencyPack]);
 
   const handleSave = () => {
-    // In a real app, this would be an API call
     addToast('Emergency data pack updated!', 'success');
-    // This would be the new 'initial' state after saving
-    // For this demo, we can just reset the change tracking
     setHasChanges(false); 
   };
   
@@ -55,14 +47,14 @@ const EmergencyAccess: React.FC = () => {
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <div className="bg-gradient-to-br from-red-500/5 to-orange-500/5 rounded-xl p-4 sm:p-8 text-center border-2 border-dashed border-red-500/30">
-              <div className="max-w-[12rem] sm:max-w-[12rem] bg-white rounded-lg mx-auto mb-4 flex items-center justify-center aspect-square">
-                <QrCode className="w-full h-full text-gray-400" />
+              <div className="max-w-[12rem] sm:max-w-[12rem] bg-white p-2 rounded-lg mx-auto mb-4 flex items-center justify-center aspect-square">
+                {emergencyUrl && <img src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(emergencyUrl)}&size=256x256&qzone=1`} alt="Emergency QR Code" />}
               </div>
               <p className="text-sm text-[var(--text-secondary)] mb-4">
                 Scan for emergency medical information
               </p>
               <button
-                onClick={() => setShowQRModal(true)}
+                onClick={() => setShowQRModal({ visible: true, url: emergencyUrl })}
                 className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium"
               >
                 View Full QR Code
@@ -111,7 +103,7 @@ const EmergencyAccess: React.FC = () => {
                     {key === 'allergies' && `${user?.allergies.length} allergies listed`}
                     {key === 'medications' && `${user?.medications.length} current medications`}
                     {key === 'conditions' && `${user?.chronicConditions.length} chronic conditions`}
-                    {key === 'emergencyContacts' && 'Primary and secondary contacts'}
+                    {key === 'emergencyContacts' && `${user?.emergencyContacts.length} contacts listed`}
                     {key === 'recentSurgeries' && 'Surgeries in last 6 months'}
                   </p>
                 </div>
@@ -145,15 +137,6 @@ const EmergencyAccess: React.FC = () => {
           <p className="text-sm text-yellow-800 dark:text-yellow-300">
             ⚠️ <strong>Recommendation:</strong> Include blood type and allergies at minimum. This critical information can save your life in emergency situations.
           </p>
-        </div>
-      </div>
-      
-      <div className="bg-[var(--card-background)] rounded-xl p-6 border border-[var(--border-color)]">
-        <h3 className="font-semibold text-lg mb-4">Emergency Access History</h3>
-        <div className="text-center py-12">
-          <Shield className="w-16 h-16 text-gray-400/50 mx-auto mb-4" />
-          <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">No Emergency Access</h4>
-          <p className="text-[var(--text-secondary)]">Your emergency pack has never been accessed</p>
         </div>
       </div>
     </div>

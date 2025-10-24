@@ -1,7 +1,8 @@
+
 import React, { useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { formatDate } from '../utils';
-import { Bell, Users, Clock } from 'lucide-react';
+import { Bell, Users, Clock, AlertTriangle } from 'lucide-react';
 import type { Notification } from '../types';
 
 const NotificationIcon = ({ type }: { type: Notification['type'] }) => {
@@ -10,6 +11,10 @@ const NotificationIcon = ({ type }: { type: Notification['type'] }) => {
       return <Users className="w-5 h-5 text-blue-600" />;
     case 'ACCESS_EXPIRING':
       return <Clock className="w-5 h-5 text-orange-600" />;
+    case 'EMERGENCY_ACCESS_VIEWED':
+      return <AlertTriangle className="w-5 h-5 text-red-600" />;
+    case 'DOCUMENT_UPLOADED':
+      return <Bell className="w-5 h-5 text-purple-600" />;
     default:
       return <Bell className="w-5 h-5 text-gray-600" />;
   }
@@ -70,12 +75,16 @@ const NotificationsPanel: React.FC = () => {
             >
               <div className="w-2 mt-2 flex-shrink-0">
                 {!notif.isRead && (
-                    <div className="h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <div className={`h-2 rounded-full animate-pulse ${
+                      notif.type === 'EMERGENCY_ACCESS_VIEWED' ? 'bg-red-500' : 'bg-blue-500'
+                    }`}></div>
                 )}
               </div>
               <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
                 notif.type === 'ACCESS_REQUEST' ? 'bg-blue-500/10' :
-                notif.type === 'ACCESS_EXPIRING' ? 'bg-orange-500/10' : 'bg-gray-500/10'
+                notif.type === 'ACCESS_EXPIRING' ? 'bg-orange-500/10' :
+                notif.type === 'EMERGENCY_ACCESS_VIEWED' ? 'bg-red-500/10' :
+                notif.type === 'DOCUMENT_UPLOADED' ? 'bg-purple-500/10' : 'bg-gray-500/10'
               }`}>
                 <NotificationIcon type={notif.type} />
               </div>

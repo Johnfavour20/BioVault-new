@@ -1,6 +1,6 @@
 
-import React, { useState, createContext, useContext, ReactNode, useCallback } from 'react';
-import type { AppContextType, User, HealthRecord, AccessRequest, ActiveAccess, AuditLog, Notification, Toast } from '../types';
+import React, { useState, createContext, useContext, ReactNode, useCallback, useEffect } from 'react';
+import type { AppContextType, User, HealthRecord, AccessRequest, ActiveAccess, AuditLog, Notification, Toast, QRModalState } from '../types';
 import { mockUser, mockHealthRecords, mockAccessRequests, mockActiveAccess, mockAuditLog, mockNotifications } from '../constants';
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -25,13 +25,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
   const [selectedHealthRecord, setSelectedHealthRecord] = useState<HealthRecord | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showQRModal, setShowQRModal] = useState(false);
+  const [showQRModal, setShowQRModal] = useState<QRModalState>({ visible: false });
   const [showHealthRecordViewModal, setShowHealthRecordViewModal] = useState(false);
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showNotificationsPanel, setShowNotificationsPanel] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // New state for provider upload modal
+  const [showProviderUploadModal, setShowProviderUploadModal] = useState(false);
+  const [providerUploadingFor, setProviderUploadingFor] = useState<ActiveAccess | null>(null);
+  // New state for audit log filtering
+  const [auditLogFilter, setAuditLogFilter] = useState<string | null>(null);
 
   const removeToast = (id: number) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
@@ -41,6 +47,56 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const id = Date.now();
     setToasts(prev => [...prev, { id, message, type }]);
   }, []);
+  
+  // Effect to listen for emergency access events from the public portal
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'biovault_emergency_access' && event.newValue) {
+        try {
+          const accessEvent = JSON.parse(event.newValue);
+          const { actor, resource, location, timestamp } = accessEvent;
+
+          // 1. Add to Audit Log
+          const newAuditLog: AuditLog = {
+            id: `audit_${timestamp}`,
+            eventType: 'EMERGENCY_ACCESS_VIEWED',
+            actor,
+            resource,
+            timestamp,
+            location,
+          };
+          setAuditLog(prev => [newAuditLog, ...prev]);
+
+          // 2. Add Notification
+          const newNotification: Notification = {
+            id: `notif_${timestamp}`,
+            type: 'EMERGENCY_ACCESS_VIEWED',
+            message: `CRITICAL: Your emergency data was accessed by ${actor}.`,
+            timestamp,
+            isRead: false,
+            linkTo: 'audit',
+          };
+          setNotifications(prev => [newNotification, ...prev]);
+
+          // 3. Show a toast
+          addToast('EMERGENCY ALERT: Your data was just accessed!', 'error');
+
+          // 4. Clean up
+          localStorage.removeItem('biovault_emergency_access');
+
+        } catch (e) {
+          console.error("Error parsing emergency access event from localStorage", e);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [addToast]);
+
 
   React.useEffect(() => {
      if (user) {
@@ -88,6 +144,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setIsLoading,
     showConnectModal,
     setShowConnectModal,
+    showProviderUploadModal,
+    setShowProviderUploadModal,
+    providerUploadingFor,
+    setProviderUploadingFor,
+    auditLogFilter,
+    setAuditLogFilter,
   };
 
   return (

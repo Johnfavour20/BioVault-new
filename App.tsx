@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { LocaleProvider } from './context/LocaleContext';
 import LandingPage from './components/LandingPage';
 import WalletConnectModal from './components/modals/WalletConnectModal';
 import Navbar from './components/Navbar';
@@ -13,17 +15,25 @@ import EmergencyAccess from './components/EmergencyAccess';
 import Settings from './components/Settings';
 import AIAssistant from './components/AIAssistant';
 import UploadModal from './components/modals/UploadModal';
+import ProviderUploadModal from './components/modals/ProviderUploadModal';
 import QRCodeModal from './components/modals/QRCodeModal';
 import HealthRecordViewModal from './components/modals/DocumentViewModal';
 import NotificationsPanel from './components/NotificationsPanel';
 import SplashScreen from './components/SplashScreen';
 import ToastContainer from './components/ToastContainer';
 import DashboardSkeleton from './components/skeletons/DashboardSkeleton';
-import type { User } from './types';
+import EmergencyPortal from './components/EmergencyPortal';
 
 const AppContent: React.FC = () => {
-  const { currentView, user, setUser, showUploadModal, showQRModal, showHealthRecordViewModal, showNotificationsPanel, isSidebarOpen, setIsSidebarOpen, isLoading, showConnectModal, setShowConnectModal } = useApp();
+  const { currentView, user, setUser, showUploadModal, showProviderUploadModal, showQRModal, showHealthRecordViewModal, showNotificationsPanel, isSidebarOpen, setIsSidebarOpen, isLoading, showConnectModal, setShowConnectModal } = useApp();
   const [showSplash, setShowSplash] = React.useState(true);
+
+  // Simple router to show emergency portal
+  const path = window.location.pathname;
+  if (path.startsWith('/emergency/')) {
+    const userId = path.split('/')[2];
+    return <EmergencyPortal userId={userId} />;
+  }
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -39,8 +49,8 @@ const AppContent: React.FC = () => {
   const renderView = () => {
     switch (currentView) {
       case 'dashboard': return <Dashboard />;
-      case 'ai_assistant': return <AIAssistant />;
-      case 'health_records': return <HealthRecords />;
+      case 'aiAssistant': return <AIAssistant />;
+      case 'healthRecords': return <HealthRecords />;
       case 'access': return <AccessManagement />;
       case 'audit': return <AuditTrail />;
       case 'emergency': return <EmergencyAccess />;
@@ -95,7 +105,8 @@ const AppContent: React.FC = () => {
       </div>
       
       {showUploadModal && <UploadModal />}
-      {showQRModal && <QRCodeModal />}
+      {showProviderUploadModal && <ProviderUploadModal />}
+      {showQRModal.visible && <QRCodeModal />}
       {showHealthRecordViewModal && <HealthRecordViewModal />}
     </div>
   );
@@ -104,9 +115,11 @@ const AppContent: React.FC = () => {
 export default function App() {
   return (
     <ThemeProvider>
-      <AppProvider>
-        <AppContent />
-      </AppProvider>
+      <LocaleProvider>
+        <AppProvider>
+          <AppContent />
+        </AppProvider>
+      </LocaleProvider>
     </ThemeProvider>
   );
 }

@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { formatDate } from '../utils';
@@ -115,7 +116,7 @@ const Dashboard: React.FC = () => {
   const { user, healthRecords, accessRequests, activeAccess, auditLog, setCurrentView, setShowUploadModal, setShowQRModal, setSelectedHealthRecord, setShowHealthRecordViewModal, setAuditLog } = useApp();
   
   const stats = [
-    { label: 'Total Health Records', value: healthRecords.length, icon: FileText, color: 'blue', view: 'health_records' },
+    { label: 'Total Health Records', value: healthRecords.length, icon: FileText, color: 'blue', view: 'healthRecords' },
     { label: 'Active Access Grants', value: activeAccess.length, icon: Users, color: 'green', view: 'access' },
     { label: 'Pending Requests', value: accessRequests.length, icon: Clock, color: 'yellow', view: 'access' },
     { label: 'Total Access Events', value: auditLog.length, icon: Activity, color: 'sky', view: 'audit' }
@@ -159,7 +160,7 @@ const Dashboard: React.FC = () => {
         </button>
         
         <button
-          onClick={() => setShowQRModal(true)}
+          onClick={() => setShowQRModal({ visible: true })}
           className="bg-[var(--card-background)] border-2 border-[var(--border-color)] p-6 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all text-left text-[var(--text-primary)]"
         >
           <QrCode className="w-10 h-10 mb-3 text-[var(--primary)]" />
@@ -194,7 +195,7 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-lg">Recent Health Records</h3>
             <button
-              onClick={() => setCurrentView('health_records')}
+              onClick={() => setCurrentView('healthRecords')}
               className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center"
             >
               View All <ChevronRight className="w-4 h-4 ml-1" />

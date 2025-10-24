@@ -1,5 +1,7 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import { useLocale } from '../context/LocaleContext';
 import { GoogleGenAI, Chat } from "@google/genai";
 import { Sparkles, Send, Bot } from 'lucide-react';
 
@@ -17,6 +19,7 @@ const suggestedPrompts = [
 
 const AIAssistant: React.FC = () => {
   const { user, healthRecords } = useApp();
+  const { t } = useLocale();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -52,7 +55,7 @@ ${recordList}`;
         });
          setMessages([{
             sender: 'ai',
-            text: "Hello! I'm your AI Health Assistant. I can help you understand your medical records. How can I assist you today?"
+            text: t('ai.welcome')
          }]);
       } catch (error) {
         console.error("Failed to initialize Gemini Chat:", error);
@@ -64,7 +67,7 @@ ${recordList}`;
   // Re-initialize chat if user or records change, or on first load.
   useEffect(() => {
     initChat();
-  }, [user, healthRecords]);
+  }, [user, healthRecords, t]);
 
 
   const scrollToBottom = () => {
@@ -108,7 +111,7 @@ ${recordList}`;
   };
 
   const handleComplianceCheck = () => {
-    const compliancePrompt = "Analyze my provided health data summary and check for potential GDPR compliance issues a user should be aware of. For example, mention sensitive data categories and the importance of explicit consent for sharing.";
+    const compliancePrompt = t('ai.compliancePrompt');
     handleSendMessage(compliancePrompt);
   };
 
@@ -158,7 +161,7 @@ ${recordList}`;
                     onClick={handleComplianceCheck}
                     className="w-full text-left text-sm p-3 bg-yellow-500/10 hover:bg-yellow-500/20 rounded-lg transition-colors text-yellow-700 dark:text-yellow-400 col-span-1 sm:col-span-2"
                   >
-                    Run Compliance Check (GDPR)
+                    {t('ai.complianceCheck')}
                   </button>
               </div>
             </div>

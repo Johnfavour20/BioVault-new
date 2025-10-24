@@ -1,21 +1,34 @@
+
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Download } from 'lucide-react';
+import { useLocale } from '../context/LocaleContext';
+import { Download, Plus, X } from 'lucide-react';
+import type { Medication } from '../types';
 
 const Settings: React.FC = () => {
-  const { user, addToast } = useApp();
+  const { user, setUser, addToast } = useApp();
+  const { language, setLanguage, t } = useLocale();
 
   const [activeTab, setActiveTab] = useState('profile');
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     email: user?.email || '',
     dateOfBirth: user?.dateOfBirth || '',
-    bloodType: user?.bloodType || 'B+'
+    bloodType: user?.bloodType || 'B+',
+    allergies: user?.allergies || [],
+    chronicConditions: user?.chronicConditions || [],
+    medications: user?.medications || []
   });
   const [hasProfileChanges, setHasProfileChanges] = useState(false);
-  const [shareData, setShareData] = useState(false);
-  const [dataResidency, setDataResidency] = useState('global');
 
+  const [newAllergy, setNewAllergy] = useState('');
+  const [newCondition, setNewCondition] = useState('');
+  const [newMedication, setNewMedication] = useState<Medication>({ name: '', dosage: '', frequency: '' });
+
+  // Privacy tab state
+  const [shareData, setShareData] = useState(false);
+  // Compliance tab state
+  const [dataResidency, setDataResidency] = useState('global');
 
   useEffect(() => {
     if (!user) return;
@@ -23,7 +36,10 @@ const Settings: React.FC = () => {
       name: user.name,
       email: user.email,
       dateOfBirth: user.dateOfBirth,
-      bloodType: user.bloodType
+      bloodType: user.bloodType,
+      allergies: user.allergies,
+      chronicConditions: user.chronicConditions,
+      medications: user.medications,
     };
     const changes = JSON.stringify(profileData) !== JSON.stringify(initialProfile);
     setHasProfileChanges(changes);
@@ -32,8 +48,34 @@ const Settings: React.FC = () => {
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setProfileData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
+
+  const handleAddItem = (type: 'allergies' | 'chronicConditions' | 'medications') => {
+    if (type === 'allergies' && newAllergy.trim()) {
+        setProfileData(prev => ({ ...prev, allergies: [...prev.allergies, newAllergy.trim()] }));
+        setNewAllergy('');
+    } else if (type === 'chronicConditions' && newCondition.trim()) {
+        setProfileData(prev => ({ ...prev, chronicConditions: [...prev.chronicConditions, newCondition.trim()] }));
+        setNewCondition('');
+    } else if (type === 'medications' && newMedication.name.trim() && newMedication.dosage.trim()) {
+        setProfileData(prev => ({ ...prev, medications: [...prev.medications, newMedication] }));
+        setNewMedication({ name: '', dosage: '', frequency: '' });
+    }
+  };
+
+  const handleRemoveItem = (type: 'allergies' | 'chronicConditions' | 'medications', index: number) => {
+    if (type === 'allergies') {
+        setProfileData(prev => ({ ...prev, allergies: prev.allergies.filter((_, i) => i !== index) }));
+    } else if (type === 'chronicConditions') {
+        setProfileData(prev => ({ ...prev, chronicConditions: prev.chronicConditions.filter((_, i) => i !== index) }));
+    } else if (type === 'medications') {
+        setProfileData(prev => ({ ...prev, medications: prev.medications.filter((_, i) => i !== index) }));
+    }
+  };
   
   const handleSaveChanges = () => {
+    if (user) {
+        setUser({ ...user, ...profileData });
+    }
     addToast('Profile updated successfully!', 'success');
     setHasProfileChanges(false);
   };
@@ -59,12 +101,12 @@ const Settings: React.FC = () => {
   return (
     <div className="space-y-6 animate-fadeIn">
       <div>
-        <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">Settings</h2>
-        <p className="text-[var(--text-secondary)] mt-1">Manage your account and preferences</p>
+        <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">{t('settings.title')}</h2>
+        <p className="text-[var(--text-secondary)] mt-1">{t('settings.tagline')}</p>
       </div>
       
       <div className="bg-[var(--card-background)] rounded-2xl border-2 border-[var(--border-color)] overflow-hidden shadow-xl">
-        <div className="border-b border-[var(--border-color)] flex">
+        <div className="border-b border-[var(--border-color)] flex overflow-x-auto">
           {['profile', 'security', 'privacy', 'billing', 'compliance'].map(tabId => (
             <button
               key={tabId}
@@ -75,7 +117,7 @@ const Settings: React.FC = () => {
                   : 'text-[var(--text-secondary)] hover:bg-[var(--muted-background)]'
               }`}
             >
-              {tabId}
+              {t(`settings.tabs.${tabId}`)}
             </button>
           ))}
         </div>
@@ -83,66 +125,84 @@ const Settings: React.FC = () => {
         <div className="p-4 sm:p-6">
           {activeTab === 'profile' && (
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-sky-500 rounded-full flex items-center justify-center text-white text-3xl font-semibold flex-shrink-0">
-                  {user?.name.split(' ').map(n => n[0]).join('')}
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg text-[var(--text-primary)] text-center sm:text-left">{user?.name}</h3>
-                  <p className="text-[var(--text-secondary)] text-center sm:text-left">{user?.email}</p>
-                  <div className="text-center sm:text-left">
-                    <button className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium">
-                      Change Avatar
-                    </button>
+                {/* Basic Info */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Full Name</label>
+                    <input type="text" name="name" value={profileData.name} onChange={handleProfileChange} className="w-full px-4 py-2 border border-[var(--border-color)] rounded-lg bg-[var(--background)] text-[var(--text-primary)]" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Email</label>
+                    <input type="email" name="email" value={profileData.email} onChange={handleProfileChange} className="w-full px-4 py-2 border border-[var(--border-color)] rounded-lg bg-[var(--background)] text-[var(--text-primary)]" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Date of Birth</label>
+                    <input type="date" name="dateOfBirth" value={profileData.dateOfBirth} onChange={handleProfileChange} className="w-full px-4 py-2 border border-[var(--border-color)] rounded-lg bg-[var(--background)] text-[var(--text-primary)]" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Blood Type</label>
+                     <select name="bloodType" value={profileData.bloodType} onChange={handleProfileChange} className="w-full px-4 py-2 border border-[var(--border-color)] rounded-lg bg-[var(--background)] text-[var(--text-primary)]" >
+                      {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(type => (<option key={type} value={type}>{type}</option>))}
+                    </select>
                   </div>
                 </div>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-4">
+
+                {/* Allergies */}
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Full Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={profileData.name}
-                    onChange={handleProfileChange}
-                    className="w-full px-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]"
-                  />
+                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">{t('settings.profile.allergies')}</label>
+                    <div className="flex gap-2">
+                        <input type="text" value={newAllergy} onChange={e => setNewAllergy(e.target.value)} placeholder={t('settings.profile.addAllergyPlaceholder')} className="flex-1 px-4 py-2 border border-[var(--border-color)] rounded-lg bg-[var(--background)] text-[var(--text-primary)]" />
+                        <button onClick={() => handleAddItem('allergies')} className="px-4 py-2 bg-blue-500/10 text-blue-600 rounded-lg"><Plus className="w-5 h-5"/></button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {profileData.allergies.map((item, i) => <span key={i} className="flex items-center bg-gray-200 dark:bg-gray-700 text-sm rounded-full px-3 py-1">{item} <button onClick={() => handleRemoveItem('allergies', i)} className="ml-2 text-gray-500 hover:text-gray-800"><X className="w-3 h-3"/></button></span>)}
+                    </div>
                 </div>
+
+                {/* Chronic Conditions */}
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={profileData.email}
-                    onChange={handleProfileChange}
-                    className="w-full px-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]"
-                  />
+                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">{t('settings.profile.conditions')}</label>
+                    <div className="flex gap-2">
+                        <input type="text" value={newCondition} onChange={e => setNewCondition(e.target.value)} placeholder={t('settings.profile.addConditionPlaceholder')} className="flex-1 px-4 py-2 border border-[var(--border-color)] rounded-lg bg-[var(--background)] text-[var(--text-primary)]" />
+                        <button onClick={() => handleAddItem('chronicConditions')} className="px-4 py-2 bg-blue-500/10 text-blue-600 rounded-lg"><Plus className="w-5 h-5"/></button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {profileData.chronicConditions.map((item, i) => <span key={i} className="flex items-center bg-gray-200 dark:bg-gray-700 text-sm rounded-full px-3 py-1">{item} <button onClick={() => handleRemoveItem('chronicConditions', i)} className="ml-2 text-gray-500 hover:text-gray-800"><X className="w-3 h-3"/></button></span>)}
+                    </div>
                 </div>
+
+                {/* Medications */}
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Date of Birth</label>
-                  <input
-                    type="date"
-                    name="dateOfBirth"
-                    value={profileData.dateOfBirth}
-                    onChange={handleProfileChange}
-                    className="w-full px-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]"
-                  />
+                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">{t('settings.profile.medications')}</label>
+                    <div className="grid sm:grid-cols-3 gap-2 mb-2">
+                        <input type="text" value={newMedication.name} onChange={e => setNewMedication(p => ({...p, name: e.target.value}))} placeholder={t('settings.profile.medNamePlaceholder')} className="px-4 py-2 border border-[var(--border-color)] rounded-lg bg-[var(--background)] text-[var(--text-primary)]" />
+                        <input type="text" value={newMedication.dosage} onChange={e => setNewMedication(p => ({...p, dosage: e.target.value}))} placeholder={t('settings.profile.medDosagePlaceholder')} className="px-4 py-2 border border-[var(--border-color)] rounded-lg bg-[var(--background)] text-[var(--text-primary)]" />
+                        <input type="text" value={newMedication.frequency} onChange={e => setNewMedication(p => ({...p, frequency: e.target.value}))} placeholder={t('settings.profile.medFreqPlaceholder')} className="px-4 py-2 border border-[var(--border-color)] rounded-lg bg-[var(--background)] text-[var(--text-primary)]" />
+                    </div>
+                    <button onClick={() => handleAddItem('medications')} className="w-full py-2 bg-blue-500/10 text-blue-600 rounded-lg font-medium">{t('settings.profile.addMedication')}</button>
+                    <div className="space-y-2 mt-2">
+                        {profileData.medications.map((med, i) => (
+                          <div key={i} className="flex items-center justify-between p-2 bg-[var(--muted-background)] rounded-lg">
+                              <span className="text-sm">{med.name} - {med.dosage} ({med.frequency})</span>
+                              <button onClick={() => handleRemoveItem('medications', i)} className="text-red-500 hover:text-red-700"><X className="w-4 h-4"/></button>
+                          </div>
+                        ))}
+                    </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Blood Type</label>
-                   <select
-                    name="bloodType"
-                    value={profileData.bloodType}
-                    onChange={handleProfileChange}
-                    className="w-full px-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]"
+                
+                {/* Language Settings */}
+                <div className="border-t border-[var(--border-color)] pt-6">
+                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">{t('settings.profile.language')}</label>
+                  <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value as 'en' | 'es' | 'fr')}
+                    className="w-full md:w-1/2 px-4 py-2 border border-[var(--border-color)] rounded-lg bg-[var(--background)] text-[var(--text-primary)]"
                   >
-                    {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(type => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
                   </select>
                 </div>
-              </div>
             </div>
           )}
           
@@ -180,27 +240,27 @@ const Settings: React.FC = () => {
           {activeTab === 'compliance' && (
              <div className="space-y-6">
                 <div>
-                  <h3 className="font-semibold text-lg text-[var(--text-primary)] mb-2">Data Residency</h3>
-                  <p className="text-sm text-[var(--text-secondary)] mb-4">Select the geographical region where your encrypted data pointers are stored. This helps comply with local data protection regulations.</p>
+                  <h3 className="font-semibold text-lg text-[var(--text-primary)] mb-2">{t('settings.compliance.dataResidency')}</h3>
+                  <p className="text-sm text-[var(--text-secondary)] mb-4">{t('settings.compliance.residencyDescription')}</p>
                   <select
                     value={dataResidency}
                     onChange={handleResidencyChange}
-                    className="w-full md:w-1/2 px-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]"
+                    className="w-full md:w-1/2 px-4 py-2 border border-[var(--border-color)] rounded-lg bg-[var(--background)] text-[var(--text-primary)]"
                   >
-                    <option value="global">Global (Default)</option>
-                    <option value="us">United States (US)</option>
-                    <option value="eu">European Union (EU)</option>
+                    <option value="global">{t('settings.compliance.residency.global')}</option>
+                    <option value="us">{t('settings.compliance.residency.us')}</option>
+                    <option value="eu">{t('settings.compliance.residency.eu')}</option>
                   </select>
                 </div>
                 <div className="border-t border-[var(--border-color)] pt-6">
-                  <h3 className="font-semibold text-lg text-[var(--text-primary)] mb-2">Data Export</h3>
-                  <p className="text-sm text-[var(--text-secondary)] mb-4">Request a complete export of all your data and metadata stored on BioVault.</p>
+                  <h3 className="font-semibold text-lg text-[var(--text-primary)] mb-2">{t('settings.compliance.dataExport')}</h3>
+                  <p className="text-sm text-[var(--text-secondary)] mb-4">{t('settings.compliance.exportDescription')}</p>
                   <button
                     onClick={handleExport}
                     className="bg-[var(--card-background)] border border-[var(--border-color)] px-6 py-2 rounded-lg hover:bg-[var(--muted-background)] transition-colors font-medium flex items-center self-start sm:self-auto"
                   >
                     <Download className="w-4 h-4 mr-2" />
-                    Request Data Export
+                    {t('settings.compliance.requestExport')}
                   </button>
                 </div>
              </div>
@@ -208,12 +268,12 @@ const Settings: React.FC = () => {
         </div>
         
         {hasProfileChanges && activeTab === 'profile' && (
-           <div className="mt-6 p-4 bg-[var(--card-background)] border-t border-[var(--border-color)] flex items-center justify-end">
+           <div className="p-4 bg-[var(--card-background)] border-t border-[var(--border-color)] flex items-center justify-end">
              <button
                onClick={handleSaveChanges}
                className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-lg font-semibold hover:shadow-lg transition-all"
              >
-               Save Changes
+               {t('settings.profile.saveChanges')}
              </button>
            </div>
         )}

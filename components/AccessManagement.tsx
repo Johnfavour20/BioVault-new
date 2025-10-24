@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { formatDate, formatTimeLeft } from '../utils';
-import { CheckCircle, XCircle, Users, BellOff } from 'lucide-react';
+import { CheckCircle, XCircle, Users, BellOff, Upload, Clock, Eye } from 'lucide-react';
 import ConfirmationModal from './modals/ConfirmationModal';
 import type { AccessRequest, ActiveAccess } from '../types';
 
@@ -9,27 +10,33 @@ type ConfirmationDetails = {
     action: 'approve' | 'deny';
     details: AccessRequest;
 } | {
-    action: 'revoke';
+    action: 'revoke' | 'extend';
     details: ActiveAccess;
 };
 
 const AccessManagement: React.FC = () => {
-  const { accessRequests, setAccessRequests, activeAccess, setActiveAccess, addToast } = useApp();
+  const { 
+    accessRequests, setAccessRequests, activeAccess, setActiveAccess, addToast,
+    setShowProviderUploadModal, setProviderUploadingFor, setCurrentView, setAuditLogFilter
+  } = useApp();
   const [confirmation, setConfirmation] = useState<ConfirmationDetails | null>(null);
-  const [processingItem, setProcessingItem] = useState<{ id: string; action: 'approve' | 'deny' | 'revoke' } | null>(null);
+  const [processingItem, setProcessingItem] = useState<{ id: string; action: string } | null>(null);
 
-  const handleApprove = (request: AccessRequest) => {
-    setConfirmation({ action: 'approve', details: request });
-  };
+  const handleApprove = (request: AccessRequest) => setConfirmation({ action: 'approve', details: request });
+  const handleDeny = (request: AccessRequest) => setConfirmation({ action: 'deny', details: request });
+  const handleRevoke = (grant: ActiveAccess) => setConfirmation({ action: 'revoke', details: grant });
+  const handleExtendAccess = (grant: ActiveAccess) => setConfirmation({ action: 'extend', details: grant });
   
-  const handleDeny = (request: AccessRequest) => {
-    setConfirmation({ action: 'deny', details: request });
+  const handleProviderUpload = (grant: ActiveAccess) => {
+    setProviderUploadingFor(grant);
+    setShowProviderUploadModal(true);
   };
-  
-  const handleRevoke = (grant: ActiveAccess) => {
-    setConfirmation({ action: 'revoke', details: grant });
+
+  const handleViewActivity = (grant: ActiveAccess) => {
+    setAuditLogFilter(grant.provider);
+    setCurrentView('audit');
   };
-  
+
   const executeConfirmation = () => {
     if (!confirmation) return;
     const { action, details } = confirmation;
@@ -59,6 +66,10 @@ const AccessManagement: React.FC = () => {
           const grant = details as ActiveAccess;
           setActiveAccess(prev => prev.filter(g => g.id !== grant.id));
           addToast(`Access revoked for ${grant.provider}.`, 'success');
+        } else if (action === 'extend') {
+          const grant = details as ActiveAccess;
+          setActiveAccess(prev => prev.map(g => g.id === grant.id ? { ...g, expiresAt: g.expiresAt + 24 * 60 * 60 * 1000 } : g));
+          addToast(`Access extended for ${grant.provider}.`, 'success');
         }
         setProcessingItem(null);
     }, 1500);
@@ -75,14 +86,16 @@ const AccessManagement: React.FC = () => {
         return <p>Are you sure you want to deny the access request from <strong>{details.provider}</strong>?</p>;
       case 'revoke':
         return <p>Are you sure you want to revoke access for <strong>{details.provider}</strong>? This action cannot be undone.</p>;
+      case 'extend':
+        return <p>Are you sure you want to extend access for <strong>{details.provider}</strong> by 24 hours?</p>;
       default:
         return '';
     }
   };
 
-  const getProcessingClass = (id: string, currentActions: Array<'approve' | 'deny' | 'revoke'>) => {
+  const getProcessingClass = (id: string, currentActions: string[]) => {
     if (processingItem?.id === id && currentActions.includes(processingItem.action)) {
-      if (processingItem.action === 'approve') return 'animate-approve-flash';
+      if (['approve', 'extend'].includes(processingItem.action)) return 'animate-approve-flash';
       if (['deny', 'revoke'].includes(processingItem.action)) return 'animate-deny-flash';
     }
     return '';
@@ -198,7 +211,7 @@ const AccessManagement: React.FC = () => {
         {activeAccess.length > 0 ? (
           <div className="space-y-4">
             {activeAccess.map(grant => (
-              <div key={grant.id} className={`border-2 border-[var(--border-color)] rounded-2xl p-4 sm:p-6 hover:shadow-lg transition-shadow ${getProcessingClass(grant.id, ['revoke'])}`}>
+              <div key={grant.id} className={`border-2 border-[var(--border-color)] rounded-2xl p-4 sm:p-6 hover:shadow-lg transition-shadow ${getProcessingClass(grant.id, ['revoke', 'extend'])}`}>
                 <div className="flex flex-col sm:flex-row items-start justify-between mb-4 gap-2">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
@@ -243,7 +256,6 @@ const AccessManagement: React.FC = () => {
                   <div className="mt-3">
                     <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-1">
                       <span>Time remaining</span>
-                      <span>{Math.round((grant.expiresAt - Date.now()) / (1000 * 60 * 60))} hours</span>
                     </div>
                     <div className="w-full bg-[var(--border-color)] rounded-full h-2">
                       <div 
@@ -255,11 +267,14 @@ const AccessManagement: React.FC = () => {
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-2">
-                  <button disabled={!!processingItem} className="flex-1 bg-blue-500/10 text-blue-600 py-2 px-3 rounded-lg hover:bg-blue-500/20 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
-                    View Activity
+                  <button onClick={() => handleProviderUpload(grant)} disabled={!!processingItem} className="flex-1 bg-purple-500/10 text-purple-600 py-2 px-3 rounded-lg hover:bg-purple-500/20 transition-colors text-sm font-medium flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                    <Upload className="w-4 h-4 mr-2" /> Simulate Upload
                   </button>
-                  <button disabled={!!processingItem} className="flex-1 bg-[var(--muted-background)] text-[var(--text-secondary)] py-2 px-3 rounded-lg hover:bg-[var(--border-color)] transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
-                    Extend Access
+                  <button onClick={() => handleViewActivity(grant)} disabled={!!processingItem} className="flex-1 bg-blue-500/10 text-blue-600 py-2 px-3 rounded-lg hover:bg-blue-500/20 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
+                    <Eye className="w-4 h-4 mr-2" /> View Activity
+                  </button>
+                  <button onClick={() => handleExtendAccess(grant)} disabled={!!processingItem} className="flex-1 bg-[var(--muted-background)] text-[var(--text-secondary)] py-2 px-3 rounded-lg hover:bg-[var(--border-color)] transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
+                    <Clock className="w-4 h-4 mr-2" /> Extend Access
                   </button>
                   <button
                     onClick={() => handleRevoke(grant)}
@@ -289,15 +304,17 @@ const AccessManagement: React.FC = () => {
           title={
             confirmation.action === 'approve' ? 'Approve Access Request?' :
             confirmation.action === 'deny' ? 'Deny Access Request?' :
+            confirmation.action === 'extend' ? 'Extend Access?' :
             'Revoke Access?'
           }
           message={getConfirmationMessage()}
           confirmText={
              confirmation.action === 'approve' ? 'Yes, Approve' :
              confirmation.action === 'deny' ? 'Yes, Deny' :
+             confirmation.action === 'extend' ? 'Yes, Extend' :
              'Yes, Revoke'
           }
-          confirmVariant={confirmation.action === 'approve' ? 'primary' : 'destructive'}
+          confirmVariant={['approve', 'extend'].includes(confirmation.action) ? 'primary' : 'destructive'}
         />
       )}
     </div>

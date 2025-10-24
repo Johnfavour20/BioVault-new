@@ -1,13 +1,21 @@
-import React, { useState, useMemo } from 'react';
+
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { formatDate } from '../utils';
 import { Download, Search, Calendar, Shield, Eye, CheckCircle, Upload, XCircle, AlertTriangle, Activity, LucideIcon } from 'lucide-react';
 
 const AuditTrail: React.FC = () => {
-  const { auditLog } = useApp();
+  const { auditLog, auditLogFilter, setAuditLogFilter } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('ALL');
   
+  // Clear the filter when the component unmounts
+  useEffect(() => {
+    return () => {
+      setAuditLogFilter(null);
+    }
+  }, [setAuditLogFilter]);
+
   const getEventIcon = (eventType: string): LucideIcon => {
     switch (eventType) {
       case 'DOCUMENT_VIEWED': return Eye;
@@ -40,9 +48,11 @@ const AuditTrail: React.FC = () => {
       
       const matchesType = filterType === 'ALL' || entry.eventType === filterType;
       
-      return matchesSearch && matchesType;
+      const matchesProviderFilter = !auditLogFilter || entry.actor === auditLogFilter;
+
+      return matchesSearch && matchesType && matchesProviderFilter;
     });
-  }, [auditLog, searchTerm, filterType]);
+  }, [auditLog, searchTerm, filterType, auditLogFilter]);
   
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -58,7 +68,7 @@ const AuditTrail: React.FC = () => {
       </div>
       
       <div className="bg-[var(--card-background)] rounded-xl p-4 sm:p-6 border border-[var(--border-color)]">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 mb-6">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 mb-4">
           <div className="flex-1 relative">
             <Search className="w-5 h-5 text-[var(--text-secondary)] absolute left-3 top-1/2 transform -translate-y-1/2" />
             <input
@@ -88,6 +98,18 @@ const AuditTrail: React.FC = () => {
           </div>
         </div>
         
+        {auditLogFilter && (
+            <div className="mb-4 flex items-center">
+                <span className="text-sm text-[var(--text-secondary)] mr-2">Filtered by:</span>
+                <div className="bg-blue-500/10 text-blue-600 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                    {auditLogFilter}
+                    <button onClick={() => setAuditLogFilter(null)} className="ml-2 text-blue-400 hover:text-blue-600">
+                        <XCircle className="w-4 h-4" />
+                    </button>
+                </div>
+            </div>
+        )}
+
         <div className="relative">
           <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-[var(--border-color)]"></div>
           <div className="space-y-4">

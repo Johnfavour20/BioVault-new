@@ -7,8 +7,15 @@ export interface Medication {
   frequency: string;
 }
 
+export interface EmergencyContact {
+  name: string;
+  relationship: string;
+  phone: string;
+}
+
 export interface User {
   id: string;
+  emergencyId: string;
   name: string;
   email: string;
   dateOfBirth: string;
@@ -16,6 +23,7 @@ export interface User {
   allergies: string[];
   chronicConditions: string[];
   medications: Medication[];
+  emergencyContacts: EmergencyContact[];
   tier: string;
 }
 
@@ -28,6 +36,7 @@ export interface HealthRecord {
   size: string;
   ipfsHash: string;
   encrypted: boolean;
+  uploadedBy?: string; // Optional field to track who uploaded the record
 }
 
 export interface AccessRequest {
@@ -62,7 +71,7 @@ export interface AuditLog {
 
 export interface Notification {
   id: string;
-  type: 'ACCESS_REQUEST' | 'ACCESS_EXPIRING' | 'GENERAL';
+  type: 'ACCESS_REQUEST' | 'ACCESS_EXPIRING' | 'GENERAL' | 'DOCUMENT_UPLOADED' | 'EMERGENCY_ACCESS_VIEWED';
   message: string;
   timestamp: number;
   isRead: boolean;
@@ -73,6 +82,11 @@ export interface Toast {
   id: number;
   message: string;
   type: 'success' | 'error' | 'info';
+}
+
+export interface QRModalState {
+  visible: boolean;
+  url?: string;
 }
 
 export interface AppContextType {
@@ -94,8 +108,8 @@ export interface AppContextType {
   setSelectedHealthRecord: Dispatch<SetStateAction<HealthRecord | null>>;
   showUploadModal: boolean;
   setShowUploadModal: Dispatch<SetStateAction<boolean>>;
-  showQRModal: boolean;
-  setShowQRModal: Dispatch<SetStateAction<boolean>>;
+  showQRModal: QRModalState;
+  setShowQRModal: Dispatch<SetStateAction<QRModalState>>;
   showHealthRecordViewModal: boolean;
   setShowHealthRecordViewModal: Dispatch<SetStateAction<boolean>>;
   isSidebarOpen: boolean;
@@ -109,4 +123,12 @@ export interface AppContextType {
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   showConnectModal: boolean;
   setShowConnectModal: Dispatch<SetStateAction<boolean>>;
+  // New state for provider upload flow
+  showProviderUploadModal: boolean;
+  setShowProviderUploadModal: Dispatch<SetStateAction<boolean>>;
+  providerUploadingFor: ActiveAccess | null;
+  setProviderUploadingFor: Dispatch<SetStateAction<ActiveAccess | null>>;
+  // New state for audit trail filtering
+  auditLogFilter: string | null;
+  setAuditLogFilter: Dispatch<SetStateAction<string | null>>;
 }

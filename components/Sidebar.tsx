@@ -1,25 +1,28 @@
+
 import React from 'react';
 import { useApp } from '../context/AppContext';
+import { useLocale } from '../context/LocaleContext';
 import { Activity, FileText, Users, Shield, AlertTriangle, Settings, LogOut, LucideIcon, Sparkles } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
 interface MenuItem {
   id: string;
   icon: LucideIcon;
-  label: string;
+  labelKey: string;
 }
 
 const Sidebar: React.FC = () => {
   const { currentView, setCurrentView, isSidebarOpen, setIsSidebarOpen, setUser, addToast } = useApp();
+  const { t } = useLocale();
 
   const menuItems: MenuItem[] = [
-    { id: 'dashboard', icon: Activity, label: 'Dashboard' },
-    { id: 'ai_assistant', icon: Sparkles, label: 'AI Assistant' },
-    { id: 'health_records', icon: FileText, label: 'Health Records' },
-    { id: 'access', icon: Users, label: 'Access Control' },
-    { id: 'audit', icon: Shield, label: 'Audit Trail' },
-    { id: 'emergency', icon: AlertTriangle, label: 'Emergency Access' },
-    { id: 'settings', icon: Settings, label: 'Settings' }
+    { id: 'dashboard', icon: Activity, labelKey: 'dashboard' },
+    { id: 'aiAssistant', icon: Sparkles, labelKey: 'aiAssistant' },
+    { id: 'healthRecords', icon: FileText, labelKey: 'healthRecords' },
+    { id: 'access', icon: Users, labelKey: 'accessControl' },
+    { id: 'audit', icon: Shield, labelKey: 'auditTrail' },
+    { id: 'emergency', icon: AlertTriangle, labelKey: 'emergencyAccess' },
+    { id: 'settings', icon: Settings, labelKey: 'settings' }
   ];
 
   const handleNavigate = (viewId: string) => {
@@ -53,7 +56,7 @@ const Sidebar: React.FC = () => {
                 }`}
               >
                 <Icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
+                <span className="font-medium">{t(item.labelKey)}</span>
               </button>
             );
           })}
@@ -69,7 +72,7 @@ const Sidebar: React.FC = () => {
             className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-500/10 rounded-lg transition-colors"
           >
             <LogOut className="w-5 h-5" />
-            <span className="font-medium">Disconnect</span>
+            <span className="font-medium">{t('disconnect')}</span>
           </button>
         </div>
       </div>
