@@ -79,23 +79,27 @@ export const mockHealthRecords: HealthRecord[] = [
 export const mockAccessRequests: AccessRequest[] = [
   {
     id: 'req_001',
-    provider: 'Dr. Maria Rodriguez',
-    institution: 'City General Hospital',
-    reason: 'Routine follow-up appointment',
-    requestedDuration: '48 hours',
-    dataCategories: ['Lab Results', 'Medications', 'Visit History'],
-    timestamp: Date.now() - 30 * 60 * 1000,
-    status: 'pending'
+    provider: 'Dr. Emily Rodriguez',
+    providerId: 'EMT-4892',
+    institution: 'Memorial Hospital ER',
+    reason: 'Emergency consultation - MVA patient',
+    requestedDuration: 'Until resolved',
+    dataCategories: ['All Records'],
+    timestamp: Date.now() - 2 * 60 * 1000,
+    status: 'pending',
+    priority: 'emergency',
   },
   {
     id: 'req_002',
-    provider: 'Dr. James Chen',
-    institution: 'Heart & Vascular Center',
-    reason: 'Cardiology consultation',
+    provider: 'Dr. Michael Chang',
+    providerId: 'MD-7634',
+    institution: 'Westside Cardiology',
+    reason: 'Follow-up for hypertension management',
     requestedDuration: '7 days',
     dataCategories: ['Imaging', 'Lab Results', 'Visit History'],
-    timestamp: Date.now() - 2 * 60 * 60 * 1000,
-    status: 'pending'
+    timestamp: Date.now() - 1 * 60 * 60 * 1000,
+    status: 'pending',
+    priority: 'standard',
   }
 ];
 
@@ -142,16 +146,16 @@ export const mockNotifications: Notification[] = [
   {
     id: 'notif_001',
     type: 'ACCESS_REQUEST',
-    message: 'Dr. Maria Rodriguez from City General Hospital is requesting access to your records.',
-    timestamp: Date.now() - 30 * 60 * 1000,
+    message: 'Dr. Emily Rodriguez from Memorial Hospital ER is requesting access to your records.',
+    timestamp: Date.now() - 2 * 60 * 1000,
     isRead: false,
     linkTo: 'access',
   },
   {
     id: 'notif_002',
     type: 'ACCESS_REQUEST',
-    message: 'Dr. James Chen from Heart & Vascular Center is requesting access to your records.',
-    timestamp: Date.now() - 2 * 60 * 60 * 1000,
+    message: 'Dr. Michael Chang from Westside Cardiology is requesting access to your records.',
+    timestamp: Date.now() - 1 * 60 * 60 * 1000,
     isRead: false,
     linkTo: 'access',
   },

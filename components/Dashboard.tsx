@@ -1,29 +1,30 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { formatDate } from '../utils';
-import { Upload, QrCode, Bell, FileText, Users, Clock, Activity, ChevronRight, Lock, BarChart2 } from 'lucide-react';
+import { Upload, QrCode, Bell, FileText, Users, HeartPulse, ChevronRight, Lock, BarChart2, Shield } from 'lucide-react';
 import type { HealthRecord } from '../types';
 
-const StatCard: React.FC<{ label: string, value: number | string, icon: React.ElementType, color: string }> = ({ label, value, icon: Icon, color }) => {
+const StatCard: React.FC<{ label: string, value: number | string, icon: React.ElementType, color: string, subtitle?: string }> = ({ label, value, icon: Icon, color, subtitle }) => {
   const colors = {
     blue: 'from-blue-500 to-blue-600',
     green: 'from-green-500 to-green-600',
-    yellow: 'from-yellow-500 to-yellow-600',
-    sky: 'from-sky-500 to-sky-600'
+    purple: 'from-purple-500 to-purple-600',
+    red: 'from-red-500 to-red-600'
   };
 
   return (
-    <div className={`relative overflow-hidden bg-gradient-to-br ${colors[color]} text-white rounded-2xl p-4 sm:p-6 shadow-lg hover:-translate-y-1 transition-transform h-full`}>
+    <div className={`relative overflow-hidden bg-gradient-to-br ${colors[color]} text-white rounded-2xl p-4 sm:p-6 shadow-lg hover:-translate-y-1 transition-transform h-full flex flex-col`}>
       <div className="absolute -top-4 -right-4 w-24 h-24 text-white/10">
         <Icon className="w-full h-full" strokeWidth={1.5}/>
       </div>
-      <div className="relative z-10">
+      <div className="relative z-10 flex-grow flex flex-col">
         <div className="bg-white/20 w-12 h-12 rounded-lg flex items-center justify-center mb-3">
           <Icon className="w-6 h-6" />
         </div>
         <p className="text-2xl sm:text-3xl font-bold">{value}</p>
         <p className="text-sm opacity-90 mt-1">{label}</p>
+        {subtitle && <p className="text-xs opacity-80 mt-auto pt-2">{subtitle}</p>}
       </div>
     </div>
   );
@@ -113,13 +114,50 @@ const WeeklyActivityChart: React.FC = () => {
 };
 
 const Dashboard: React.FC = () => {
-  const { user, healthRecords, accessRequests, activeAccess, auditLog, setCurrentView, setShowUploadModal, setShowQRModal, setSelectedHealthRecord, setShowHealthRecordViewModal, setAuditLog } = useApp();
+  const { user, healthRecords, accessRequests, activeAccess, setCurrentView, setShowUploadModal, setShowQRModal, setSelectedHealthRecord, setShowHealthRecordViewModal, setAuditLog, addToast } = useApp();
   
+  const [heartRate, setHeartRate] = useState<number | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const intervalRef = useRef<number | null>(null);
+  
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
+  const handleConnectWatch = () => {
+    if (heartRate || isConnecting) return;
+
+    setIsConnecting(true);
+    addToast('Connecting to Apple Watch...', 'info');
+
+    setTimeout(() => {
+        setIsConnecting(false);
+        const initialHeartRate = Math.floor(Math.random() * (90 - 70 + 1)) + 70;
+        setHeartRate(initialHeartRate);
+        addToast('Apple Watch connected successfully!', 'success');
+
+        intervalRef.current = window.setInterval(() => {
+            setHeartRate(prev => {
+                if (prev === null) {
+                    if(intervalRef.current) clearInterval(intervalRef.current);
+                    return null;
+                };
+                const change = Math.floor(Math.random() * 5) - 2; // change between -2 and 2
+                return Math.max(60, Math.min(110, prev + change));
+            });
+        }, 2500);
+
+    }, 2000);
+  };
+
   const stats = [
-    { label: 'Total Health Records', value: healthRecords.length, icon: FileText, color: 'blue', view: 'healthRecords' },
-    { label: 'Active Access Grants', value: activeAccess.length, icon: Users, color: 'green', view: 'access' },
-    { label: 'Pending Requests', value: accessRequests.length, icon: Clock, color: 'yellow', view: 'access' },
-    { label: 'Total Access Events', value: auditLog.length, icon: Activity, color: 'sky', view: 'audit' }
+    { id: 'security', label: 'Security Score', value: '100%', icon: Shield, color: 'purple', subtitle: 'AES-256 Encrypted', view: 'settings' },
+    { id: 'records', label: 'Health Records', value: healthRecords.length, icon: FileText, color: 'blue', subtitle: 'All Encrypted On-Chain', view: 'healthRecords' },
+    { id: 'grants', label: 'Active Providers', value: activeAccess.length, icon: Users, color: 'green', subtitle: 'Time-Limited Access', view: 'access' },
   ];
 
   const handleViewRecord = (rec: HealthRecord) => {
@@ -181,11 +219,35 @@ const Dashboard: React.FC = () => {
       </div>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat, idx) => (
-          <button key={idx} onClick={() => setCurrentView(stat.view)} className="text-left w-full h-full">
+        {stats.map((stat) => (
+          <button key={stat.id} onClick={() => setCurrentView(stat.view)} className="text-left w-full h-full">
             <StatCard {...stat} />
           </button>
         ))}
+         <button onClick={handleConnectWatch} disabled={isConnecting || !!heartRate} className="text-left w-full h-full disabled:cursor-not-allowed">
+            <div className={`relative overflow-hidden bg-gradient-to-br from-red-500 to-red-600 text-white rounded-2xl p-4 sm:p-6 shadow-lg hover:-translate-y-1 transition-transform h-full flex flex-col`}>
+                <div className="absolute -top-4 -right-4 w-24 h-24 text-white/10">
+                    <HeartPulse className="w-full h-full" strokeWidth={1.5}/>
+                </div>
+                <div className="relative z-10 flex-grow flex flex-col">
+                    <div className="bg-white/20 w-12 h-12 rounded-lg flex items-center justify-center mb-3">
+                        <HeartPulse className="w-6 h-6" />
+                    </div>
+                    {isConnecting ? (
+                        <p className="text-2xl sm:text-3xl font-bold animate-pulse">...</p>
+                    ) : (
+                        <p className="text-2xl sm:text-3xl font-bold">{heartRate ? heartRate : '—'}</p>
+                    )}
+                    <p className="text-sm opacity-90 mt-1">Live Heart Rate</p>
+                    {isConnecting ? (
+                        <p className="text-xs opacity-80 mt-auto pt-2">Connecting...</p>
+                    ) : (
+                        <p className="text-xs opacity-80 mt-auto pt-2">{heartRate ? `Connected` : 'Connect Apple Watch'}</p>
+                    )}
+                    {heartRate && <span className="absolute top-4 right-4 h-3 w-3 rounded-full bg-white/50 animate-ping"></span>}
+                </div>
+            </div>
+        </button>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

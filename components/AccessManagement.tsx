@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { formatDate, formatTimeLeft } from '../utils';
-import { CheckCircle, XCircle, Users, BellOff, Upload, Clock, Eye } from 'lucide-react';
+import { Check, X, Users, BellOff, Upload, Clock, Eye } from 'lucide-react';
 import ConfirmationModal from './modals/ConfirmationModal';
 import type { AccessRequest, ActiveAccess } from '../types';
 
@@ -135,63 +135,53 @@ const AccessManagement: React.FC = () => {
         </div>
         
         {accessRequests.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {accessRequests.map(request => (
-              <div key={request.id} className={`border-2 border-red-500/30 bg-red-500/5 rounded-2xl p-4 sm:p-6 hover:border-blue-500/30 transition-colors shadow-lg ${getProcessingClass(request.id, ['approve', 'deny'])}`}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-sky-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
+              <div key={request.id} className={`p-4 rounded-xl transition-all ${getProcessingClass(request.id, ['approve', 'deny'])} ${
+                request.priority === 'emergency' 
+                ? 'bg-red-500/5 border-l-4 border-red-500' 
+                : 'bg-[var(--card-background)] border border-[var(--border-color)] hover:bg-[var(--muted-background)]'
+              }`}>
+                <div className="flex flex-wrap items-center justify-between gap-y-2 gap-x-4 mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0 ${
+                      request.priority === 'emergency' ? 'bg-gradient-to-br from-red-500 to-orange-500' : 'bg-gradient-to-br from-blue-400 to-sky-500'
+                    }`}>
                       {request.provider.split(' ').map(n => n[0]).join('')}
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[var(--text-primary)]">{request.provider}</h4>
-                      <p className="text-sm text-[var(--text-secondary)]">{request.institution}</p>
-                      <p className="text-xs text-gray-500 mt-1">{formatDate(request.timestamp)}</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="font-semibold text-[var(--text-primary)]">{request.provider}</h4>
+                        {request.priority === 'emergency' && (
+                          <span className="text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full flex items-center gap-1">🚨 EMERGENCY</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+                        <span>{request.providerId}</span>
+                        <span>•</span>
+                        <span>{request.institution}</span>
+                      </div>
                     </div>
                   </div>
+                  <div className="text-xs text-gray-500 self-start pt-1 shrink-0">{formatDate(request.timestamp)}</div>
                 </div>
-                
-                <div className="bg-[var(--background)] rounded-lg p-4 mb-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-xs text-[var(--text-secondary)] mb-1">Reason for Access</p>
-                      <p className="text-sm font-medium text-[var(--text-primary)]">{request.reason}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-[var(--text-secondary)] mb-1">Requested Duration</p>
-                      <p className="text-sm font-medium text-[var(--text-primary)]">{request.requestedDuration}</p>
-                    </div>
+
+                <div className="pl-0 sm:pl-13 mt-3">
+                  <p className="text-sm text-[var(--text-primary)] mb-4">{request.reason}</p>
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={() => handleApprove(request)} 
+                      disabled={!!processingItem}
+                      className="flex items-center justify-center gap-2 bg-green-500/10 text-green-700 hover:bg-green-500/20 font-semibold px-4 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                      <Check className="w-4 h-4" /> Approve
+                    </button>
+                    <button 
+                      onClick={() => handleDeny(request)} 
+                      disabled={!!processingItem}
+                      className="flex items-center justify-center gap-2 bg-gray-500/10 text-gray-700 dark:text-gray-300 hover:bg-gray-500/20 font-semibold px-4 py-2 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                      <X className="w-4 h-4" /> Deny
+                    </button>
                   </div>
-                  
-                  <div className="mt-3">
-                    <p className="text-xs text-[var(--text-secondary)] mb-2">Requested Data Categories</p>
-                    <div className="flex flex-wrap gap-2">
-                      {request.dataCategories.map((category, idx) => (
-                        <span key={idx} className="text-xs bg-blue-500/10 text-blue-600 px-2 py-1 rounded-full">
-                          {category}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col sm:flex-row items-center gap-3">
-                  <button
-                    onClick={() => handleApprove(request)}
-                    disabled={!!processingItem}
-                    className="w-full sm:w-auto flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg hover:shadow-lg transition-all font-bold flex items-center justify-center shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <CheckCircle className="w-5 h-5 mr-2" />
-                    Approve Access
-                  </button>
-                  <button
-                    onClick={() => handleDeny(request)}
-                    disabled={!!processingItem}
-                    className="w-full sm:w-auto flex-1 bg-[var(--muted-background)] text-[var(--text-secondary)] py-3 rounded-lg hover:bg-[var(--border-color)] transition-colors font-bold flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <XCircle className="w-5 h-5 mr-2" />
-                    Deny
-                  </button>
                 </div>
               </div>
             ))}

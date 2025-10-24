@@ -48,12 +48,14 @@ export interface HealthRecord {
 export interface AccessRequest {
   id: string;
   provider: string;
+  providerId: string;
   institution: string;
   reason: string;
   requestedDuration: string;
   dataCategories: string[];
   timestamp: number;
   status: 'pending' | 'approved' | 'denied';
+  priority?: 'emergency' | 'standard';
 }
 
 export interface ActiveAccess {
