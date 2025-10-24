@@ -4,6 +4,7 @@ import { Download } from 'lucide-react';
 
 const Settings: React.FC = () => {
   const { user, addToast } = useApp();
+
   const [activeTab, setActiveTab] = useState('profile');
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
@@ -13,6 +14,8 @@ const Settings: React.FC = () => {
   });
   const [hasProfileChanges, setHasProfileChanges] = useState(false);
   const [shareData, setShareData] = useState(false);
+  const [dataResidency, setDataResidency] = useState('global');
+
 
   useEffect(() => {
     if (!user) return;
@@ -31,7 +34,6 @@ const Settings: React.FC = () => {
   };
   
   const handleSaveChanges = () => {
-    // In a real app, you would call an API to save the user data
     addToast('Profile updated successfully!', 'success');
     setHasProfileChanges(false);
   };
@@ -44,6 +46,15 @@ const Settings: React.FC = () => {
       'info'
     );
   };
+  
+  const handleExport = () => {
+    addToast('Data export request received. It will be sent to your email.', 'success');
+  }
+
+  const handleResidencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setDataResidency(e.target.value);
+      addToast(`Data residency preference updated to ${e.target.options[e.target.selectedIndex].text}`, 'info');
+  }
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -54,7 +65,7 @@ const Settings: React.FC = () => {
       
       <div className="bg-[var(--card-background)] rounded-2xl border-2 border-[var(--border-color)] overflow-hidden shadow-xl">
         <div className="border-b border-[var(--border-color)] flex">
-          {['profile', 'security', 'privacy', 'billing'].map(tabId => (
+          {['profile', 'security', 'privacy', 'billing', 'compliance'].map(tabId => (
             <button
               key={tabId}
               onClick={() => setActiveTab(tabId)}
@@ -120,137 +131,92 @@ const Settings: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">Blood Type</label>
-                  <select
+                   <select
                     name="bloodType"
                     value={profileData.bloodType}
                     onChange={handleProfileChange}
                     className="w-full px-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]"
                   >
-                    <option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+                    {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
                   </select>
                 </div>
               </div>
-              
-              <button 
-                onClick={handleSaveChanges}
-                disabled={!hasProfileChanges}
-                className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-lg transition-all font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Save Changes
-              </button>
             </div>
           )}
           
           {activeTab === 'security' && (
-             <div className="space-y-6">
-              <div>
-                <h3 className="font-semibold text-lg mb-4">Wallet Address</h3>
-                <div className="bg-[var(--muted-background)] rounded-lg p-4 font-mono text-sm text-[var(--text-secondary)] break-all">
-                  {user?.id}
-                </div>
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg mb-4">Two-Factor Authentication</h3>
-                <div className="flex items-center justify-between p-4 bg-[var(--muted-background)] rounded-lg">
-                  <div>
-                    <p className="font-medium text-[var(--text-primary)]">2FA Enabled</p>
-                    <p className="text-sm text-[var(--text-secondary)]">Extra security for your account</p>
-                  </div>
-                  <span className="text-green-600 font-medium text-sm">Active</span>
-                </div>
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg mb-4">Backup & Recovery</h3>
-                <div className="space-y-3">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-4 bg-yellow-400/10 border border-yellow-500/20 rounded-lg">
-                    <div>
-                      <p className="font-medium text-[var(--text-primary)]">Backup Phrase</p>
-                      <p className="text-sm text-[var(--text-secondary)]">Save your recovery phrase securely</p>
-                    </div>
-                    <button className="w-full sm:w-auto bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors font-medium text-sm flex-shrink-0">
-                      View Phrase
-                    </button>
-                  </div>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-4 bg-[var(--muted-background)] rounded-lg">
-                    <div>
-                      <p className="font-medium text-[var(--text-primary)]">Social Recovery</p>
-                      <p className="text-sm text-[var(--text-secondary)]">3 of 5 trusted contacts can recover access</p>
-                    </div>
-                    <button className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm flex-shrink-0">
-                      Configure
-                    </button>
-                  </div>
-                </div>
-              </div>
+            <div className="text-center py-12">
+              <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">Security Settings</h3>
+              <p className="text-[var(--text-secondary)]">Manage 2FA, connected devices, and more.</p>
             </div>
           )}
           
           {activeTab === 'privacy' && (
              <div className="space-y-6">
-              <div>
-                <h3 className="font-semibold text-lg mb-4">Data Sharing</h3>
-                <div className="space-y-3">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-4 bg-[var(--muted-background)] rounded-lg">
-                    <div className="w-full sm:w-auto">
-                      <p className="font-medium text-[var(--text-primary)]">Research Data Marketplace</p>
-                      <p className="text-sm text-[var(--text-secondary)]">Share anonymized data with researchers</p>
+                <div className="flex items-center justify-between p-4 bg-[var(--muted-background)] rounded-lg">
+                    <div>
+                        <h4 className="font-medium text-[var(--text-primary)]">Share Anonymized Data for Research</h4>
+                        <p className="text-sm text-[var(--text-secondary)]">Help advance medical research by sharing non-identifiable data.</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer flex-shrink-0 self-end sm:self-center">
-                      <input type="checkbox" checked={shareData} onChange={handleDataSharingToggle} className="sr-only peer" />
-                      <div className="w-11 h-6 bg-[var(--border-color)] rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                  </div>
+                    <button
+                        onClick={handleDataSharingToggle}
+                        className={`relative inline-flex items-center h-6 w-11 rounded-full transition-colors ${shareData ? 'bg-blue-600' : 'bg-gray-400 dark:bg-gray-600'}`}
+                    >
+                        <span className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${shareData ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
                 </div>
-              </div>
-              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                <h3 className="font-semibold text-red-700 dark:text-red-400 mb-2">Delete Account</h3>
-                <p className="text-sm text-red-800 dark:text-red-300 mb-4">
-                  Permanently delete your account and all associated data. This action cannot be undone.
-                </p>
-                <button className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium">
-                  Delete My Account
-                </button>
-              </div>
+             </div>
+          )}
+
+          {activeTab === 'billing' && (
+            <div className="text-center py-12">
+              <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">Billing Information</h3>
+              <p className="text-[var(--text-secondary)]">Manage your BioVault subscription and payment methods.</p>
             </div>
           )}
           
-          {activeTab === 'billing' && (
-            <div className="space-y-6">
-              <div className="bg-blue-500/5 rounded-xl p-6 border border-blue-500/10">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
-                  <div>
-                    <h3 className="font-semibold text-lg text-[var(--text-primary)]">Current Plan: Plus</h3>
-                    <p className="text-[var(--text-secondary)]">$9.99/month • Billed monthly</p>
-                  </div>
-                  <span className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold">Active</span>
+          {activeTab === 'compliance' && (
+             <div className="space-y-6">
+                <div>
+                  <h3 className="font-semibold text-lg text-[var(--text-primary)] mb-2">Data Residency</h3>
+                  <p className="text-sm text-[var(--text-secondary)] mb-4">Select the geographical region where your encrypted data pointers are stored. This helps comply with local data protection regulations.</p>
+                  <select
+                    value={dataResidency}
+                    onChange={handleResidencyChange}
+                    className="w-full md:w-1/2 px-4 py-2 border border-[var(--border-color)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--text-primary)]"
+                  >
+                    <option value="global">Global (Default)</option>
+                    <option value="us">United States (US)</option>
+                    <option value="eu">European Union (EU)</option>
+                  </select>
                 </div>
-                <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-all font-semibold">
-                  Upgrade to Premium
-                </button>
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg mb-4">Billing History</h3>
-                <div className="space-y-2">
-                  {[
-                    { date: 'Oct 22, 2025', amount: '$9.99', status: 'Paid' },
-                    { date: 'Sep 22, 2025', amount: '$9.99', status: 'Paid' },
-                  ].map((invoice, idx) => (
-                    <div key={idx} className="flex flex-wrap items-center justify-between gap-2 p-4 bg-[var(--muted-background)] rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        <span className="text-[var(--text-secondary)] text-sm">{invoice.date}</span>
-                        <span className="font-medium text-[var(--text-primary)]">{invoice.amount}</span>
-                        <span className="text-green-600 text-sm font-medium">{invoice.status}</span>
-                      </div>
-                      <button className="text-blue-600 hover:text-blue-700 font-medium text-sm">
-                        <Download className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
+                <div className="border-t border-[var(--border-color)] pt-6">
+                  <h3 className="font-semibold text-lg text-[var(--text-primary)] mb-2">Data Export</h3>
+                  <p className="text-sm text-[var(--text-secondary)] mb-4">Request a complete export of all your data and metadata stored on BioVault.</p>
+                  <button
+                    onClick={handleExport}
+                    className="bg-[var(--card-background)] border border-[var(--border-color)] px-6 py-2 rounded-lg hover:bg-[var(--muted-background)] transition-colors font-medium flex items-center self-start sm:self-auto"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Request Data Export
+                  </button>
                 </div>
-              </div>
-            </div>
+             </div>
           )}
         </div>
+        
+        {hasProfileChanges && activeTab === 'profile' && (
+           <div className="mt-6 p-4 bg-[var(--card-background)] border-t border-[var(--border-color)] flex items-center justify-end">
+             <button
+               onClick={handleSaveChanges}
+               className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-lg font-semibold hover:shadow-lg transition-all"
+             >
+               Save Changes
+             </button>
+           </div>
+        )}
       </div>
     </div>
   );

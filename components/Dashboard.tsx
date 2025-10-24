@@ -82,7 +82,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6 animate-fadeIn">
       <div>
-        <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">Welcome back, {user?.name.split(' ')[0]}! 👋</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">{`Welcome back, ${user?.name.split(' ')[0] || ''}! 👋`}</h2>
         <p className="text-[var(--text-secondary)] mt-1">Here's what's happening with your health data</p>
       </div>
       

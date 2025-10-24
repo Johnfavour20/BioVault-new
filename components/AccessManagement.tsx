@@ -16,6 +16,7 @@ type ConfirmationDetails = {
 const AccessManagement: React.FC = () => {
   const { accessRequests, setAccessRequests, activeAccess, setActiveAccess, addToast } = useApp();
   const [confirmation, setConfirmation] = useState<ConfirmationDetails | null>(null);
+  const [processingItem, setProcessingItem] = useState<{ id: string; action: 'approve' | 'deny' | 'revoke' } | null>(null);
 
   const handleApprove = (request: AccessRequest) => {
     setConfirmation({ action: 'approve', details: request });
@@ -33,30 +34,34 @@ const AccessManagement: React.FC = () => {
     if (!confirmation) return;
     const { action, details } = confirmation;
     
-    if (action === 'approve') {
-      const request = details as AccessRequest;
-      setActiveAccess(prev => [...prev, {
-        id: `grant_${Date.now()}`,
-        provider: request.provider,
-        institution: request.institution,
-        grantedAt: Date.now(),
-        expiresAt: Date.now() + 2 * 24 * 60 * 60 * 1000, // 48 hours for demo
-        dataCategories: request.dataCategories,
-        accessCount: 0
-      }]);
-      setAccessRequests(prev => prev.filter(r => r.id !== request.id));
-      addToast(`Access approved for ${request.provider}.`, 'success');
-    } else if (action === 'deny') {
-      const request = details as AccessRequest;
-      setAccessRequests(prev => prev.filter(r => r.id !== request.id));
-      addToast(`Access denied for ${request.provider}.`, 'info');
-    } else if (action === 'revoke') {
-      const grant = details as ActiveAccess;
-      setActiveAccess(prev => prev.filter(g => g.id !== grant.id));
-      addToast(`Access revoked for ${grant.provider}.`, 'success');
-    }
-    
+    setProcessingItem({ id: details.id, action });
     setConfirmation(null);
+
+    setTimeout(() => {
+        if (action === 'approve') {
+          const request = details as AccessRequest;
+          setActiveAccess(prev => [...prev, {
+            id: `grant_${Date.now()}`,
+            provider: request.provider,
+            institution: request.institution,
+            grantedAt: Date.now(),
+            expiresAt: Date.now() + 2 * 24 * 60 * 60 * 1000, // 48 hours for demo
+            dataCategories: request.dataCategories,
+            accessCount: 0
+          }]);
+          setAccessRequests(prev => prev.filter(r => r.id !== request.id));
+          addToast(`Access approved for ${request.provider}.`, 'success');
+        } else if (action === 'deny') {
+          const request = details as AccessRequest;
+          setAccessRequests(prev => prev.filter(r => r.id !== request.id));
+          addToast(`Access denied for ${request.provider}.`, 'info');
+        } else if (action === 'revoke') {
+          const grant = details as ActiveAccess;
+          setActiveAccess(prev => prev.filter(g => g.id !== grant.id));
+          addToast(`Access revoked for ${grant.provider}.`, 'success');
+        }
+        setProcessingItem(null);
+    }, 1500);
   };
 
   const getConfirmationMessage = () => {
@@ -74,9 +79,33 @@ const AccessManagement: React.FC = () => {
         return '';
     }
   };
+
+  const getProcessingClass = (id: string, currentActions: Array<'approve' | 'deny' | 'revoke'>) => {
+    if (processingItem?.id === id && currentActions.includes(processingItem.action)) {
+      if (processingItem.action === 'approve') return 'animate-approve-flash';
+      if (['deny', 'revoke'].includes(processingItem.action)) return 'animate-deny-flash';
+    }
+    return '';
+  };
   
   return (
     <div className="space-y-6 animate-fadeIn">
+      <style>{`
+        @keyframes approve-flash {
+          0%, 100% { background-color: transparent; }
+          50% { background-color: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3); }
+        }
+        .animate-approve-flash {
+          animation: approve-flash 1.5s ease-out;
+        }
+        @keyframes deny-flash {
+          0%, 100% { background-color: transparent; }
+          50% { background-color: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
+        }
+        .animate-deny-flash {
+          animation: deny-flash 1.5s ease-out;
+        }
+      `}</style>
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">Access Control</h2>
         <p className="text-[var(--text-secondary)] mt-1">Manage who can view your medical records</p>
@@ -95,7 +124,7 @@ const AccessManagement: React.FC = () => {
         {accessRequests.length > 0 ? (
           <div className="space-y-4">
             {accessRequests.map(request => (
-              <div key={request.id} className="border-2 border-red-500/30 bg-red-500/5 rounded-2xl p-4 sm:p-6 hover:border-blue-500/30 transition-colors shadow-lg">
+              <div key={request.id} className={`border-2 border-red-500/30 bg-red-500/5 rounded-2xl p-4 sm:p-6 hover:border-blue-500/30 transition-colors shadow-lg ${getProcessingClass(request.id, ['approve', 'deny'])}`}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-sky-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
@@ -136,14 +165,16 @@ const AccessManagement: React.FC = () => {
                 <div className="flex flex-col sm:flex-row items-center gap-3">
                   <button
                     onClick={() => handleApprove(request)}
-                    className="w-full sm:w-auto flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg hover:shadow-lg transition-all font-bold flex items-center justify-center shadow-md"
+                    disabled={!!processingItem}
+                    className="w-full sm:w-auto flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg hover:shadow-lg transition-all font-bold flex items-center justify-center shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <CheckCircle className="w-5 h-5 mr-2" />
                     Approve Access
                   </button>
                   <button
                     onClick={() => handleDeny(request)}
-                    className="w-full sm:w-auto flex-1 bg-[var(--muted-background)] text-[var(--text-secondary)] py-3 rounded-lg hover:bg-[var(--border-color)] transition-colors font-bold flex items-center justify-center"
+                    disabled={!!processingItem}
+                    className="w-full sm:w-auto flex-1 bg-[var(--muted-background)] text-[var(--text-secondary)] py-3 rounded-lg hover:bg-[var(--border-color)] transition-colors font-bold flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <XCircle className="w-5 h-5 mr-2" />
                     Deny
@@ -167,7 +198,7 @@ const AccessManagement: React.FC = () => {
         {activeAccess.length > 0 ? (
           <div className="space-y-4">
             {activeAccess.map(grant => (
-              <div key={grant.id} className="border-2 border-[var(--border-color)] rounded-2xl p-4 sm:p-6 hover:shadow-lg transition-shadow">
+              <div key={grant.id} className={`border-2 border-[var(--border-color)] rounded-2xl p-4 sm:p-6 hover:shadow-lg transition-shadow ${getProcessingClass(grant.id, ['revoke'])}`}>
                 <div className="flex flex-col sm:flex-row items-start justify-between mb-4 gap-2">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
@@ -224,15 +255,16 @@ const AccessManagement: React.FC = () => {
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-2">
-                  <button className="flex-1 bg-blue-500/10 text-blue-600 py-2 px-3 rounded-lg hover:bg-blue-500/20 transition-colors text-sm font-medium">
+                  <button disabled={!!processingItem} className="flex-1 bg-blue-500/10 text-blue-600 py-2 px-3 rounded-lg hover:bg-blue-500/20 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
                     View Activity
                   </button>
-                  <button className="flex-1 bg-[var(--muted-background)] text-[var(--text-secondary)] py-2 px-3 rounded-lg hover:bg-[var(--border-color)] transition-colors text-sm font-medium">
+                  <button disabled={!!processingItem} className="flex-1 bg-[var(--muted-background)] text-[var(--text-secondary)] py-2 px-3 rounded-lg hover:bg-[var(--border-color)] transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
                     Extend Access
                   </button>
                   <button
                     onClick={() => handleRevoke(grant)}
-                    className="bg-red-500/10 text-red-600 px-4 py-2 rounded-lg hover:bg-red-500/20 transition-colors text-sm font-medium"
+                    disabled={!!processingItem}
+                    className="bg-red-500/10 text-red-600 px-4 py-2 rounded-lg hover:bg-red-500/20 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Revoke
                   </button>

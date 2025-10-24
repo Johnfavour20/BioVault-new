@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { Activity, FileText, Users, Shield, AlertTriangle, Settings, LogOut, LucideIcon, Sparkles } from 'lucide-react';
@@ -10,22 +9,22 @@ interface MenuItem {
   label: string;
 }
 
-const menuItems: MenuItem[] = [
-  { id: 'dashboard', icon: Activity, label: 'Dashboard' },
-  { id: 'ai_assistant', icon: Sparkles, label: 'AI Assistant' },
-  { id: 'health_records', icon: FileText, label: 'Health Records' },
-  { id: 'access', icon: Users, label: 'Access Control' },
-  { id: 'audit', icon: Shield, label: 'Audit Trail' },
-  { id: 'emergency', icon: AlertTriangle, label: 'Emergency Access' },
-  { id: 'settings', icon: Settings, label: 'Settings' }
-];
-
 const Sidebar: React.FC = () => {
   const { currentView, setCurrentView, isSidebarOpen, setIsSidebarOpen, setUser, addToast } = useApp();
-  
+
+  const menuItems: MenuItem[] = [
+    { id: 'dashboard', icon: Activity, label: 'Dashboard' },
+    { id: 'ai_assistant', icon: Sparkles, label: 'AI Assistant' },
+    { id: 'health_records', icon: FileText, label: 'Health Records' },
+    { id: 'access', icon: Users, label: 'Access Control' },
+    { id: 'audit', icon: Shield, label: 'Audit Trail' },
+    { id: 'emergency', icon: AlertTriangle, label: 'Emergency Access' },
+    { id: 'settings', icon: Settings, label: 'Settings' }
+  ];
+
   const handleNavigate = (viewId: string) => {
     setCurrentView(viewId);
-    setIsSidebarOpen(false); // Close sidebar after navigation
+    setIsSidebarOpen(false);
   };
 
   const handleDisconnect = () => {
